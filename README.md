@@ -35,7 +35,7 @@ export const App = () => {
   return (
     // fetch /api/v1/foo/bar
     <Service.Provider value="/foo/bar">
-      <!-- render fallback while MyComponent is suspended -->
+      {/* render fallback while MyComponent is suspended */}
       <Suspense fallback={<>Loading data...</>}>
         <MyComponent />
       </Suspense>
