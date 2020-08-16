@@ -1,0 +1,25 @@
+{
+  "name": "suspense-service",
+  "version": "0.0.0",
+  "description": "Suspense integration library for React",
+  "repository": "github:patrickroberts/suspense-service",
+  "author": "Patrick Roberts",
+  "license": "MIT",
+  "peerDependencies": {
+    "react": "^16.13.1",
+    "prop-types": "^15.7.2"
+  },
+  "keywords": [
+    "concurrent",
+    "context",
+    "data",
+    "fetching",
+    "hooks",
+    "integration",
+    "library",
+    "react",
+    "service",
+    "suspense",
+    "typescript"
+  ]
+}
