@@ -22,7 +22,7 @@ export function createService<TRequest, TResponse>(
 
   return {
     Consumer: createConsumer(Context),
-    Provider: createProvider(useHandler, Context),
+    Provider: createProvider(Context, useHandler),
     [kContext]: Context
   };
 }

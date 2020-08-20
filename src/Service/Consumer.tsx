@@ -1,4 +1,4 @@
-import { FunctionComponent, ReactNode, memo, useCallback, useMemo } from 'react';
+import React, { FunctionComponent, ReactNode, memo, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import Context from '../Context/index';
 import Resource from './Resource';

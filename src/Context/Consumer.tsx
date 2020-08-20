@@ -1,4 +1,4 @@
-import { Context, FunctionComponent, ReactNode, memo, useCallback, useMemo } from 'react';
+import React, { Context, FunctionComponent, ReactNode, memo, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import Environment, { unwrap } from './Environment';
 
