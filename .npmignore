@@ -4,4 +4,5 @@ dst/**/*.d.ts
 dst/**/*.d.ts.map
 !dst/esm/*.d.ts
 !dst/esm/*.d.ts.map
+features
 src
