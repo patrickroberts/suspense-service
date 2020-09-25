@@ -1,9 +1,11 @@
+/** @internal */
 export default interface Environment<T> {
   has (key: string | null): boolean;
   get (key: string | null): T | undefined;
   [Symbol.iterator] (): IterableIterator<[string | null, T]>;
 };
 
+/** @ignore */
 export function wrap<T>(
   env: Environment<T>,
   value: T,
@@ -12,6 +14,7 @@ export function wrap<T>(
   return new Map([...env, [id, value], [null, value]]);
 }
 
+/** @ignore */
 export function unwrap<T>(
   env: Environment<T>,
   id: string | null

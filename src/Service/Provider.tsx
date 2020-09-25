@@ -3,21 +3,18 @@ import PropTypes from 'prop-types';
 import Context from '../Context/index';
 import Resource, { useResource } from './Resource';
 
-export interface ProviderProps<TRequest> {
+interface ServiceProviderProps<TRequest> {
   value: TRequest;
   id?: string | null;
   children?: ReactNode;
   fallback?: NonNullable<ReactNode> | null;
 }
 
-namespace Provider {
-  export type Props<TRequest> = ProviderProps<TRequest>;
-}
+type ServiceProvider<TRequest> = FunctionComponent<ServiceProviderProps<TRequest>>;
 
-type Provider<TRequest> = FunctionComponent<ProviderProps<TRequest>>;
+export default ServiceProvider;
 
-export default Provider;
-
+/** @ignore */
 const propTypes = {
   // typechecking PropTypes.any against TRequest fails due to
   // the way WeakValidationMap<TRequest> works in @types/react
@@ -27,17 +24,19 @@ const propTypes = {
   fallback: PropTypes.node
 };
 
+/** @ignore */
 const defaultProps = {
   id: null,
   children: null,
   fallback: null
 };
 
+/** @ignore */
 export function createProvider<TRequest, TResponse>(
   Context: Context<Resource<TResponse>>,
   useHandler: (request: TRequest, id: string | null) => PromiseLike<TResponse>
-): Provider<TRequest> {
-  const Provider: Provider<TRequest> = ({ value, id = null, children, fallback }) => {
+): ServiceProvider<TRequest> {
+  const Provider: ServiceProvider<TRequest> = ({ value, id = null, children, fallback }) => {
     const thenable = useHandler(value, id);
     const resource = useResource(thenable);
     const element = useMemo(() => (

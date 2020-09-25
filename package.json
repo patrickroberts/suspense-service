@@ -3,8 +3,42 @@
   "version": "0.0.0",
   "description": "Suspense integration library for React",
   "repository": "github:patrickroberts/suspense-service",
+  "main": "dst/cjs/suspense-service.js",
+  "module": "dst/esm/suspense-service.js",
+  "browser": "dst/umd/suspense-service.js",
+  "types": "dst/esm/suspense-service.d.ts",
+  "scripts": {
+    "clean": "rimraf dst docs",
+    "test": "cucumber-js",
+    "build": "rollup --config --environment NODE_ENV:production",
+    "rebuild": "npm run clean && npm run build",
+    "docs": "typedoc src/index.ts",
+    "watch:test": "npm test -- --watch",
+    "watch:build": "npm run build -- --environment NODE_ENV:development --watch",
+    "watch": "concurrently 'npm:watch:*'",
+    "prepublishOnly": "npm test && npm run rebuild && npm run docs"
+  },
   "author": "Patrick Roberts",
   "license": "MIT",
+  "devDependencies": {
+    "@babel/preset-react": "^7.10.4",
+    "@cucumber/cucumber": "^7.0.0-rc.0",
+    "@rollup/plugin-commonjs": "^15.1.0",
+    "@rollup/plugin-node-resolve": "^9.0.0",
+    "@types/react": "^16.9.49",
+    "@wessberg/rollup-plugin-ts": "^1.3.4",
+    "concurrently": "^5.3.0",
+    "prop-types": "^15.7.2",
+    "react": "^16.13.1",
+    "rimraf": "^3.0.2",
+    "rollup": "^2.28.2",
+    "rollup-plugin-terser": "^7.0.2",
+    "ts-node": "^9.0.0",
+    "typedoc": "^0.19.2",
+    "typedoc-plugin-markdown": "^3.0.2",
+    "typedoc-plugin-sourcefile-url": "^1.0.6",
+    "typescript": "^4.0.3"
+  },
   "peerDependencies": {
     "react": "^16.13.1",
     "prop-types": "^15.7.2"
@@ -21,5 +55,23 @@
     "service",
     "suspense",
     "typescript"
-  ]
+  ],
+  "babel": {
+    "presets": [
+      "@babel/preset-react"
+    ]
+  },
+  "browserslist": {
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "current node"
+    ],
+    "production": [
+      "defaults"
+    ],
+    "test": [
+      "current node"
+    ]
+  }
 }

@@ -1,25 +1,30 @@
 import { useMemo, useRef } from 'react';
 
+/** @ignore */
 interface PromiseStatePending {
   promise: Promise<void>;
   status: 'pending';
 }
 
+/** @ignore */
 interface PromiseStateFulfilled<TResponse> {
   value: TResponse;
   status: 'fulfilled';
 }
 
+/** @ignore */
 interface PromiseStateRejected {
   reason: any;
   status: 'rejected';
 }
 
+/** @ignore */
 export type PromiseState<TResponse> =
   PromiseStatePending |
   PromiseStateFulfilled<TResponse> |
   PromiseStateRejected;
 
+/** @ignore */
 export function useThenable<TResponse>(
   thenable: PromiseLike<TResponse>
 ): PromiseState<TResponse> {

@@ -1,10 +1,12 @@
 import { useMemo } from 'react';
 import { useThenable } from './Thenable';
 
+/** @ignore */
 export default interface Resource<TResponse> {
   read(): TResponse;
 }
 
+/** @ignore */
 export function useResource<TResponse>(
   thenable: PromiseLike<TResponse>
 ): Resource<TResponse> {

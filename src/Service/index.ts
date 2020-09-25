@@ -1,13 +1,15 @@
 import Context, { createContext, useContext } from '../Context/index';
 import Resource from './Resource';
-import Consumer, { createConsumer } from './Consumer';
-import Provider, { createProvider } from './Provider';
+import ServiceConsumer, { createConsumer } from './Consumer';
+import ServiceProvider, { createProvider } from './Provider';
 
+/** @ignore */
 const kContext = Symbol();
 
 export default interface Service<TRequest, TResponse> {
-  Consumer: Consumer<TResponse>;
-  Provider: Provider<TRequest>;
+  Consumer: ServiceConsumer<TResponse>;
+  Provider: ServiceProvider<TRequest>;
+  /** @internal */
   [kContext]: Context<Resource<TResponse>>;
 }
 

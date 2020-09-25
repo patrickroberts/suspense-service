@@ -2,32 +2,31 @@ import React, { Context, FunctionComponent, ReactNode, memo, useCallback, useMem
 import PropTypes from 'prop-types';
 import Environment, { unwrap } from './Environment';
 
-export interface ConsumerProps<T> {
+interface ContextConsumerProps<T> {
   id?: string | null;
   children: (value: T) => ReactNode;
 }
 
-namespace Consumer {
-  export type Props<T> = ConsumerProps<T>;
-}
+type ContextConsumer<T> = FunctionComponent<ContextConsumerProps<T>>;
 
-type Consumer<T> = FunctionComponent<ConsumerProps<T>>;
+export default ContextConsumer;
 
-export default Consumer;
-
+/** @ignore */
 const propTypes = {
   id: PropTypes.string,
   children: PropTypes.func.isRequired
 };
 
+/** @ignore */
 const defaultProps = {
   id: null
 };
 
+/** @ignore */
 export function createConsumer<T>(
   Context: Context<Environment<T>>
-): Consumer<T> {
-  const Consumer: Consumer<T> = ({ id = null, children }) => {
+): ContextConsumer<T> {
+  const Consumer: ContextConsumer<T> = ({ id = null, children }) => {
     const render = useCallback((env: Environment<T>) => {
       const value = unwrap(env, id);
 

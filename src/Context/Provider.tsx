@@ -2,20 +2,17 @@ import React, { Context, FunctionComponent, ReactNode, memo, useContext, useMemo
 import PropTypes from 'prop-types';
 import Environment, { wrap } from './Environment';
 
-export interface ProviderProps<T> {
+interface ContextProviderProps<T> {
   value: T;
   id?: string | null;
   children?: ReactNode;
 }
 
-namespace Provider {
-  export type Props<T> = ProviderProps<T>;
-}
+type ContextProvider<T> = FunctionComponent<ContextProviderProps<T>>;
 
-type Provider<T> = FunctionComponent<ProviderProps<T>>;
+export default ContextProvider;
 
-export default Provider;
-
+/** @ignore */
 const propTypes = {
   // typechecking PropTypes.any against T fails due to
   // the way WeakValidationMap<T> works in @types/react
@@ -24,15 +21,17 @@ const propTypes = {
   children: PropTypes.node
 };
 
+/** @ignore */
 const defaultProps = {
   id: null,
   children: null
 };
 
+/** @ignore */
 export function createProvider<T>(
   Context: Context<Environment<T>>
-): Provider<T> {
-  const Provider: Provider<T> = ({ value, id = null, children }) => {
+): ContextProvider<T> {
+  const Provider: ContextProvider<T> = ({ value, id = null, children }) => {
     const prev = useContext(Context);
     const next = useMemo(() => (
       wrap(prev, value, id)

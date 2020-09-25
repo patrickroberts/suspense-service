@@ -3,33 +3,32 @@ import PropTypes from 'prop-types';
 import Context from '../Context/index';
 import Resource from './Resource';
 
-export interface ConsumerProps<TResponse> {
+interface ServiceConsumerProps<TResponse> {
   id?: string | null;
   children: (value: TResponse) => ReactNode;
 }
 
-namespace Consumer {
-  export type Props<TResponse> = ConsumerProps<TResponse>;
-}
+type ServiceConsumer<TResponse> = FunctionComponent<ServiceConsumerProps<TResponse>>;
 
-type Consumer<TResponse> = FunctionComponent<ConsumerProps<TResponse>>;
+export default ServiceConsumer;
 
-export default Consumer;
-
+/** @ignore */
 const propTypes = {
   id: PropTypes.string,
   children: PropTypes.func.isRequired
 };
 
+/** @ignore */
 const defaultProps = {
   id: null
 };
 
+/** @ignore */
 export function createConsumer<TResponse>(
   Context: Context<Resource<TResponse>>
-): Consumer<TResponse> {
-  const Consumer: FunctionComponent<ConsumerProps<TResponse>> = (
-    { id, children }: ConsumerProps<TResponse>
+): ServiceConsumer<TResponse> {
+  const Consumer: FunctionComponent<ServiceConsumerProps<TResponse>> = (
+    { id, children }: ServiceConsumerProps<TResponse>
   ) => {
     const render = useCallback((resource: Resource<TResponse>) => {
       const value = resource.read();
