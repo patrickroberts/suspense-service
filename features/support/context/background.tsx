@@ -1,7 +1,7 @@
 import React from 'react';
 import { Given } from '@cucumber/cucumber';
 import World from '../world';
-import { Context, createContext, useContext } from '../../..';
+import { Context, createContext, useContext } from '../../../src';
 
 const createComponent = (Context: Context<string>, Element: keyof JSX.IntrinsicElements) => (
   (props: { id?: string | null }) => {

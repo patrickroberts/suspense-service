@@ -1,7 +1,7 @@
 import React from 'react';
 import { DataTable, Given } from '@cucumber/cucumber';
 import World from '../world';
-import { Context } from '../../..';
+import { Context } from '../../../src';
 
 Given(
   'I declare a {string} consumer named {string} with the props',
