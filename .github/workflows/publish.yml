@@ -4,16 +4,7 @@ on:
     types:
       - published
 jobs:
-  status:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check Build Status
-        uses: fountainhead/action-wait-for-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          checkName: build
   publish:
-    needs: status
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
