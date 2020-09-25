@@ -1,5 +1,7 @@
 # suspense-service
 
+![build](https://github.com/patrickroberts/suspense-service/workflows/build/badge.svg)
+
 Suspense integration library for React
 
 ## Examples
