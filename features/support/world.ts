@@ -20,10 +20,11 @@ export default class World extends Map<string, any> implements IWorldOptions {
   parseProps (dataTable: DataTable): any {
     const entries = dataTable.raw();
 
-    return Object.fromEntries(
-      entries.map(
-        ([key, token]) => [key, this.parse(token)]
-      )
+    return entries.map(
+      ([key, token]) => [key, this.parse(token)]
+    ).reduce(
+      (props, [key, value]) => Object.assign(props, { [key]: value }),
+      {}
     );
   }
 
@@ -31,7 +32,9 @@ export default class World extends Map<string, any> implements IWorldOptions {
     const arrayMatch = token.match(array);
 
     if (arrayMatch !== null) {
-      return arrayMatch[1].split(',').map(value => this.parse(value.trim()));
+      return arrayMatch[1].split(',').map(
+        value => this.parse(value.trim())
+      );
     }
 
     if (literal.test(token)) {
