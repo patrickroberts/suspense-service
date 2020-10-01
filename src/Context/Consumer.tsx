@@ -1,9 +1,10 @@
 import React, { Context, FunctionComponent, ReactNode, memo, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
+import Id, { PropTypesId } from './Id';
 import Environment, { unwrap } from './Environment';
 
 interface ContextConsumerProps<T> {
-  id?: string | null;
+  id?: Id;
   children: (value: T) => ReactNode;
 }
 
@@ -13,7 +14,7 @@ export default ContextConsumer;
 
 /** @ignore */
 const propTypes = {
-  id: PropTypes.string,
+  id: PropTypesId,
   children: PropTypes.func.isRequired
 };
 

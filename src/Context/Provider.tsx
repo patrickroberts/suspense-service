@@ -1,10 +1,11 @@
 import React, { Context, FunctionComponent, ReactNode, memo, useContext, useMemo } from 'react';
 import PropTypes from 'prop-types';
+import Id, { PropTypesId } from './Id';
 import Environment, { wrap } from './Environment';
 
 interface ContextProviderProps<T> {
   value: T;
-  id?: string | null;
+  id?: Id;
   children?: ReactNode;
 }
 
@@ -17,7 +18,7 @@ const propTypes = {
   // typechecking PropTypes.any against T fails due to
   // the way WeakValidationMap<T> works in @types/react
   value: PropTypes.any.isRequired as any,
-  id: PropTypes.string,
+  id: PropTypesId,
   children: PropTypes.node
 };
 

@@ -1,15 +1,17 @@
+import Id from './Id';
+
 /** @internal */
 export default interface Environment<T> {
-  has (key: string | null): boolean;
-  get (key: string | null): T | undefined;
-  [Symbol.iterator] (): IterableIterator<[string | null, T]>;
+  has (key: Id): boolean;
+  get (key: Id): T | undefined;
+  [Symbol.iterator] (): IterableIterator<[Id, T]>;
 };
 
 /** @ignore */
 export function wrap<T>(
   env: Environment<T>,
   value: T,
-  id: string | null
+  id: Id
 ): Environment<T> {
   return new Map([...env, [id, value], [null, value]]);
 }
@@ -17,10 +19,10 @@ export function wrap<T>(
 /** @ignore */
 export function unwrap<T>(
   env: Environment<T>,
-  id: string | null
+  id: Id
 ): T {
   if (!env.has(id)) {
-    throw new Error(`Provider with id ${id} is not in scope`);
+    throw new Error(`Provider with id ${String(id)} is not in scope`);
   }
 
   return env.get(id)!;

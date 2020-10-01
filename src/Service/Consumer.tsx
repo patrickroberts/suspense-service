@@ -1,10 +1,11 @@
 import React, { FunctionComponent, ReactNode, memo, useCallback, useMemo } from 'react';
 import PropTypes from 'prop-types';
+import Id, { PropTypesId } from '../Context/Id';
 import Context from '../Context/index';
 import Resource from './Resource';
 
 interface ServiceConsumerProps<TResponse> {
-  id?: string | null;
+  id?: Id;
   children: (value: TResponse) => ReactNode;
 }
 
@@ -14,7 +15,7 @@ export default ServiceConsumer;
 
 /** @ignore */
 const propTypes = {
-  id: PropTypes.string,
+  id: PropTypesId,
   children: PropTypes.func.isRequired
 };
 

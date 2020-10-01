@@ -1,11 +1,12 @@
 import React, { Fragment, FunctionComponent, ReactNode, Suspense, isValidElement, memo, useMemo } from 'react';
 import PropTypes from 'prop-types';
+import Id, { PropTypesId } from '../Context/Id';
 import Context from '../Context/index';
 import Resource, { useResource } from './Resource';
 
 interface ServiceProviderProps<TRequest> {
   value: TRequest;
-  id?: string | null;
+  id?: Id;
   children?: ReactNode;
   fallback?: NonNullable<ReactNode> | null;
 }
@@ -19,7 +20,7 @@ const propTypes = {
   // typechecking PropTypes.any against TRequest fails due to
   // the way WeakValidationMap<TRequest> works in @types/react
   value: PropTypes.any.isRequired as any,
-  id: PropTypes.string,
+  id: PropTypesId,
   children: PropTypes.node,
   fallback: PropTypes.node
 };
@@ -34,7 +35,7 @@ const defaultProps = {
 /** @ignore */
 export function createProvider<TRequest, TResponse>(
   Context: Context<Resource<TResponse>>,
-  useHandler: (request: TRequest, id: string | null) => PromiseLike<TResponse>
+  useHandler: (request: TRequest, id: Id) => PromiseLike<TResponse>
 ): ServiceProvider<TRequest> {
   const Provider: ServiceProvider<TRequest> = ({ value, id = null, children, fallback }) => {
     const thenable = useHandler(value, id);

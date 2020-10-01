@@ -21,6 +21,7 @@ jobs:
       - name: Install and Test
         run: |
           npm install
+          npm run rebuild
           npm test
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

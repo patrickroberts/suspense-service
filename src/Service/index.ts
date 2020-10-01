@@ -1,3 +1,4 @@
+import Id from '../Context/Id';
 import Context, { createContext, useContext } from '../Context/index';
 import Resource from './Resource';
 import ServiceConsumer, { createConsumer } from './Consumer';
@@ -14,7 +15,7 @@ export default interface Service<TRequest, TResponse> {
 }
 
 export function createService<TRequest, TResponse>(
-  useHandler: (request: TRequest) => PromiseLike<TResponse>
+  useHandler: (request: TRequest, id: Id) => PromiseLike<TResponse>
 ): Service<TRequest, TResponse> {
   const Context = createContext<Resource<TResponse>>({
     read () {
@@ -31,7 +32,7 @@ export function createService<TRequest, TResponse>(
 
 export function useService<TResponse>(
   Service: Service<any, TResponse>,
-  id: string | null = null
+  id: Id = null
 ): TResponse {
   const resource = useContext(Service[kContext], id);
 

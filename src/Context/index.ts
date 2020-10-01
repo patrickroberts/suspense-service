@@ -3,6 +3,7 @@ import {
   createContext as createReactContext,
   useContext as useReactContext
 } from 'react';
+import Id from './Id';
 import Environment, { unwrap } from './Environment';
 import ContextConsumer, { createConsumer } from './Consumer';
 import ContextProvider, { createProvider } from './Provider';
@@ -40,7 +41,7 @@ export function createContext<T>(defaultValue: T): Context<T> {
  */
 export function useContext<T>(
   Context: Context<T>,
-  id: string | null = null
+  id: Id = null
 ): T {
   const env = useReactContext(Context[kContext]);
 

@@ -10,15 +10,17 @@ export default interface Resource<TResponse> {
 export function useResource<TResponse>(
   thenable: PromiseLike<TResponse>
 ): Resource<TResponse> {
-  const state = useThenable(thenable);
+  const ref = useThenable(thenable);
 
   return useMemo(() => ({
     read () {
+      const state = ref.current!;
+
       switch (state.status) {
         case 'pending': throw state.promise;
         case 'rejected': throw state.reason;
         case 'fulfilled': return state.value;
       }
     }
-  }), [state]);
+  }), [ref]);
 }

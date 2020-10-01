@@ -1,4 +1,4 @@
-import { useMemo, useRef } from 'react';
+import { MutableRefObject, useMemo, useRef } from 'react';
 
 /** @ignore */
 interface PromiseStatePending {
@@ -25,9 +25,12 @@ export type PromiseState<TResponse> =
   PromiseStateRejected;
 
 /** @ignore */
+type RefObject<T> = MutableRefObject<T | undefined>;
+
+/** @ignore */
 export function useThenable<TResponse>(
   thenable: PromiseLike<TResponse>
-): PromiseState<TResponse> {
+): RefObject<PromiseState<TResponse>> {
   const ref = useRef<PromiseState<TResponse>>();
 
   useMemo(() => {
@@ -51,5 +54,5 @@ export function useThenable<TResponse>(
     ref.current = { promise, status: 'pending' };
   }, [thenable, ref]);
 
-  return ref.current!;
+  return ref;
 }
