@@ -8,7 +8,7 @@
   "browser": "dst/umd/suspense-service.js",
   "types": "dst/esm/suspense-service.d.ts",
   "scripts": {
-    "clean": "rimraf dst docs",
+    "clean": "rimraf dst docs/**/*.md",
     "lint": "eslint . --ext .js,.ts,.tsx",
     "build": "rollup --config --environment NODE_ENV:production",
     "rebuild": "npm run clean && npm run build",
