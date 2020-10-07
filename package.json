@@ -17,7 +17,7 @@
     "watch:build": "npm run build -- --environment NODE_ENV:development --watch",
     "watch:test": "npm test -- --watch",
     "watch": "concurrently 'npm:watch:*'",
-    "prepublishOnly": "npm run lint && npm run rebuild && npm test && npm run docs"
+    "prepublishOnly": "npm run rebuild && npm run lint && npm test && npm run docs"
   },
   "author": "Patrick Roberts",
   "license": "MIT",
