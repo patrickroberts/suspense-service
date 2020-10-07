@@ -1,4 +1,5 @@
 {
+  "disableOutputCheck": true,
   "hideProjectName": true,
   "mode": "file",
   "out": "docs",
