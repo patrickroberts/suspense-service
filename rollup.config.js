@@ -10,7 +10,7 @@ const name = 'suspenseService';
 const production = process.env.NODE_ENV === 'production';
 const browserslist = pkg.browserslist[process.env.NODE_ENV];
 
-const keys = deps => deps == null ? [] : Object.keys(deps).map(dep => new RegExp(`^${dep}`));
+const keys = (deps) => (deps == null ? [] : Object.keys(deps).map((dep) => new RegExp(`^${dep}`)));
 
 export default [
   {
@@ -24,30 +24,30 @@ export default [
         file: pkg.main,
         format: 'cjs',
         sourcemap: production,
-        exports: 'auto'
+        exports: 'auto',
       },
       {
         file: pkg.module,
         format: 'esm',
-        sourcemap: production
-      }
+        sourcemap: production,
+      },
     ],
     plugins: [
       resolve(),
       commonjs(),
       typescript({
         transpiler: 'babel',
-        browserslist
+        browserslist,
       }),
       production && terser({
         output: {
-          comments: false
-        }
-      })
+          comments: false,
+        },
+      }),
     ],
     watch: {
-      clearScreen: false
-    }
+      clearScreen: false,
+    },
   },
   {
     input,
@@ -57,28 +57,28 @@ export default [
       format: 'umd',
       globals: {
         react: 'React',
-        'prop-types': 'PropTypes'
+        'prop-types': 'PropTypes',
       },
       name,
-      sourcemap: production
+      sourcemap: production,
     },
     plugins: [
       resolve({
-        browser: true
+        browser: true,
       }),
       commonjs(),
       typescript({
         transpiler: 'babel',
-        browserslist
+        browserslist,
       }),
       production && terser({
         output: {
-          comments: false
-        }
-      })
+          comments: false,
+        },
+      }),
     ],
     watch: {
-      clearScreen: false
-    }
-  }
+      clearScreen: false,
+    },
+  },
 ];

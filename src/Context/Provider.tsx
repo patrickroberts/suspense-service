@@ -1,15 +1,24 @@
-import React, { Context, FunctionComponent, ReactNode, memo, useContext, useMemo } from 'react';
+import React, {
+  ComponentType, Context, ReactNode, memo, useContext, useMemo,
+} from 'react';
 import PropTypes from 'prop-types';
 import Id, { PropTypesId } from './Id';
 import Environment, { wrap } from './Environment';
 
 interface ContextProviderProps<T> {
+  /**
+   * A value to provide
+   */
   value: T;
+  /**
+   * A key that allows nested Providers to be used
+   * @default null
+   */
   id?: Id;
   children?: ReactNode;
 }
 
-type ContextProvider<T> = FunctionComponent<ContextProviderProps<T>>;
+type ContextProvider<T> = ComponentType<ContextProviderProps<T>>;
 
 export default ContextProvider;
 
@@ -19,27 +28,27 @@ const propTypes = {
   // the way WeakValidationMap<T> works in @types/react
   value: PropTypes.any.isRequired as any,
   id: PropTypesId,
-  children: PropTypes.node
+  children: PropTypes.node,
 };
 
 /** @ignore */
 const defaultProps = {
   id: null,
-  children: null
+  children: null,
 };
 
 /** @ignore */
 export function createProvider<T>(
-  Context: Context<Environment<T>>
+  EnvironmentContext: Context<Environment<T>>,
 ): ContextProvider<T> {
   const Provider: ContextProvider<T> = ({ value, id = null, children }) => {
-    const prev = useContext(Context);
+    const prev = useContext(EnvironmentContext);
     const next = useMemo(() => (
       wrap(prev, value, id)
     ), [value, id, prev]);
 
     return useMemo(() => (
-      <Context.Provider value={next} children={children} />
+      <EnvironmentContext.Provider value={next}>{children}</EnvironmentContext.Provider>
     ), [children, next]);
   };
 
@@ -47,8 +56,8 @@ export function createProvider<T>(
   Provider.defaultProps = defaultProps;
 
   return memo(Provider, (prev, next) => (
-    Object.is(prev.value, next.value) &&
-    Object.is(prev.id, next.id) &&
-    Object.is(prev.children, next.children)
+    Object.is(prev.value, next.value)
+    && Object.is(prev.id, next.id)
+    && Object.is(prev.children, next.children)
   ));
 }

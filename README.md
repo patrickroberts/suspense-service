@@ -1,37 +1,53 @@
 # suspense-service
 
-![build](https://github.com/patrickroberts/suspense-service/workflows/build/badge.svg)
+[![build](https://github.com/patrickroberts/suspense-service/workflows/build/badge.svg)](https://github.com/patrickroberts/suspense-service/actions?query=workflow:build)
+[![license](https://img.shields.io/github/license/patrickroberts/suspense-service.svg)](https://github.com/patrickroberts/suspense-service/blob/master/LICENSE)
+[![types](https://img.shields.io/npm/types/suspense-service.svg)][npm]
+[![minzipped size](https://img.shields.io/bundlephobia/minzip/suspense-service.svg)][npm]
 
 Suspense integration library for React
 
-## Examples
+## Installing
 
-### Overview
+Available on [npm]
+
+```bash
+npm i suspense-service
+```
+
+## Documentation
+
+Available on [GitHub Pages](https://patrickroberts.github.io/suspense-service/)
+
+## Usage
+
+<details open>
+<summary>Basic Example</summary>
 
 ```jsx
-import React, { Suspense, useMemo } from 'react';
+import React, { Suspense } from 'react';
 import { createService, useService } from 'suspense-service';
 
-// User-defined service handler hook
-// It may accept a parameter of any type
-// but it must return a promise or thenable
-const useHandler = endpoint => {
-  const promise = useMemo(async () => {
-    const response = await fetch(`/api/v1${endpoint}`);
-    return response.json();
-  }, [endpoint]);
-
-  return promise;
+/**
+ * A user-defined service handler
+ * It may accept a parameter of any type
+ * but it must return a promise or thenable
+ */
+const myHandler = async endpoint => {
+  const response = await fetch(`/api/v1${endpoint}`);
+  return response.json();
 };
 
-// A Service is much like a Context
-// It contains a Provider and a Consumer
-const Service = createService(useHandler);
+/**
+ * A Service is like a Context
+ * It contains a Provider and a Consumer
+ */
+const MyService = createService(myHandler);
 
 const MyComponent = () => {
-  // Consume service synchronously and suspend
-  // MyComponent until the result is available
-  const value = useService(Service);
+  // Consume MyService synchronously or suspend
+  // MyComponent until the response is available
+  const value = useService(MyService);
 
   return (
     <pre>
@@ -40,38 +56,62 @@ const MyComponent = () => {
   );
 };
 
-export const App = () => (
+const App = () => (
   // Fetch /api/v1/foo/bar
-  <Service.Provider value="/foo/bar">
+  <MyService.Provider value="/foo/bar">
     {/* Render fallback while MyComponent is suspended */}
     <Suspense fallback={<>Loading data...</>}>
       <MyComponent />
     </Suspense>
-  </Service.Provider>
+  </MyService.Provider>
 );
 ```
+</details>
 
-### Inline Suspense
+<details open>
+<summary>Render Callback</summary>
 
 ```jsx
-export const App = () => (
-  // Providing the optional fallback prop
-  // will wrap the children with a Suspense
-  <Service.Provider value="/foo/bar" fallback={<>Loading data...</>}>
-    <MyComponent />
-  </Service.Provider>
+const render = value => (
+  <pre>
+    {JSON.stringify(value, null, 2)}
+  </pre>
+);
+
+const MyComponent = () => (
+  <MyService.Consumer>{render}</MyService.Consumer>
 );
 ```
+</details>
 
-### Multiple Providers
+<details open>
+<summary>Inline Suspense</summary>
+
+```jsx
+const App = () => (
+  // Passing the optional fallback prop
+  // wraps a Suspense around the children
+  <MyService.Provider
+    value="/foo/bar"
+    fallback={<>Loading data...</>}
+  >
+    <MyComponent />
+  </MyService.Provider>
+);
+```
+</details>
+
+<details open>
+<summary>Multiple Providers</summary>
 
 ```jsx
 const MyComponent = () => {
-  // Specify which Provider to use with the optional id
-  // Omitting the id or passing null will consume the
-  // closest ancestor Provider by default
-  const a = useService(Service, 'a');
-  const b = useService(Service, 'b');
+  // Specify which Provider to use
+  // by passing the optional id parameter
+  // Omitting the id or passing null will consume
+  // the closest ancestor Provider by default
+  const a = useService(MyService, 'a');
+  const b = useService(MyService, 'b');
 
   return (
     <pre>
@@ -80,16 +120,18 @@ const MyComponent = () => {
   );
 };
 
-export const App = () => (
-  // Give each Provider a key using the optional id
-  <Service.Provider value="/a" id="a">
-    <Service.Provider value="/b" id="b">
+const App = () => (
+  // Identify each Provider with a key
+  // by using the optional id prop
+  <MyService.Provider value="/a" id="a">
+    <MyService.Provider value="/b" id="b">
       <Suspense fallback={<>Loading data...</>}>
         <MyComponent />
       </Suspense>
-    </Service.Provider>
-  </Service.Provider>
+    </MyService.Provider>
+  </MyService.Provider>
 );
 ```
+</details>
 
-## Coming Soon
+[npm]: https://www.npmjs.com/package/suspense-service

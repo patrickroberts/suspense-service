@@ -1,13 +1,14 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 require('ts-node').register({
   transpileOnly: true,
   compilerOptions: {
     jsx: 'react',
-    module: 'commonjs'
-  }
+    module: 'commonjs',
+  },
 });
 
 exports.default = [
   '--require features/**/*.ts',
   '--require features/**/*.tsx',
-  '--publish-quiet'
+  '--publish-quiet',
 ].join(' ');

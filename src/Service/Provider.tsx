@@ -1,17 +1,33 @@
-import React, { Fragment, FunctionComponent, ReactNode, Suspense, isValidElement, memo, useMemo } from 'react';
+import React, {
+  ComponentType, ReactNode, Suspense, isValidElement, memo, useMemo,
+} from 'react';
 import PropTypes from 'prop-types';
 import Id, { PropTypesId } from '../Context/Id';
 import Context from '../Context/index';
+import Handler, { createHook } from './Handler';
 import Resource, { useResource } from './Resource';
 
 interface ServiceProviderProps<TRequest> {
+  /**
+   * A request passed to `useHandler()` for fetching an asynchronous resource.
+   */
   value: TRequest;
+  /**
+   * A key that allows nested Providers to be consumed
+   * @default null
+   */
   id?: Id;
   children?: ReactNode;
+  /**
+   * A fallback to render if any children are suspended.
+   * If the fallback is `null`, `undefined`, or omitted, then a Suspense
+   * component must be inserted elsewhere between the Provider and Consumer.
+   * @default null
+   */
   fallback?: NonNullable<ReactNode> | null;
 }
 
-type ServiceProvider<TRequest> = FunctionComponent<ServiceProviderProps<TRequest>>;
+type ServiceProvider<TRequest> = ComponentType<ServiceProviderProps<TRequest>>;
 
 export default ServiceProvider;
 
@@ -22,42 +38,45 @@ const propTypes = {
   value: PropTypes.any.isRequired as any,
   id: PropTypesId,
   children: PropTypes.node,
-  fallback: PropTypes.node
+  fallback: PropTypes.node,
 };
 
 /** @ignore */
 const defaultProps = {
   id: null,
   children: null,
-  fallback: null
+  fallback: null,
 };
 
 /** @ignore */
 export function createProvider<TRequest, TResponse>(
-  Context: Context<Resource<TResponse>>,
-  useHandler: (request: TRequest, id: Id) => PromiseLike<TResponse>
+  { Provider }: Context<Resource<TResponse>>,
+  handler: Handler<TRequest, TResponse>,
 ): ServiceProvider<TRequest> {
-  const Provider: ServiceProvider<TRequest> = ({ value, id = null, children, fallback }) => {
+  const useHandler = createHook(handler);
+  const ResourceProvider: ServiceProvider<TRequest> = ({
+    value, id = null, children, fallback,
+  }) => {
     const thenable = useHandler(value, id);
     const resource = useResource(thenable);
     const element = useMemo(() => (
       isValidElement(fallback)
-      ? <Suspense children={children} fallback={fallback} />
-      : <Fragment children={children} />
+        ? <Suspense fallback={fallback}>{children}</Suspense>
+        : <>{children}</>
     ), [children, fallback]);
 
     return useMemo(() => (
-      <Context.Provider value={resource} id={id} children={element} />
+      <Provider value={resource} id={id}>{element}</Provider>
     ), [resource, id, element]);
   };
 
-  Provider.propTypes = propTypes;
-  Provider.defaultProps = defaultProps;
+  ResourceProvider.propTypes = propTypes;
+  ResourceProvider.defaultProps = defaultProps;
 
-  return memo(Provider, (prev, next) => (
-    Object.is(prev.value, next.value) &&
-    Object.is(prev.id, next.id) &&
-    Object.is(prev.children, next.children) &&
-    Object.is(prev.fallback, next.fallback)
+  return memo(ResourceProvider, (prev, next) => (
+    Object.is(prev.value, next.value)
+    && Object.is(prev.id, next.id)
+    && Object.is(prev.children, next.children)
+    && Object.is(prev.fallback, next.fallback)
   ));
 }

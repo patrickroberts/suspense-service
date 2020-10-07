@@ -29,26 +29,26 @@ type RefObject<T> = MutableRefObject<T | undefined>;
 
 /** @ignore */
 export function useThenable<TResponse>(
-  thenable: PromiseLike<TResponse>
+  thenable: PromiseLike<TResponse>,
 ): RefObject<PromiseState<TResponse>> {
   const ref = useRef<PromiseState<TResponse>>();
 
   useMemo(() => {
     const promise = Promise.resolve(thenable).then(
-      value => {
+      (value) => {
         const state = ref.current!;
 
         if (state.status === 'pending' && state.promise === promise) {
           ref.current = { value, status: 'fulfilled' };
         }
       },
-      reason => {
+      (reason) => {
         const state = ref.current!;
 
         if (state.status === 'pending' && state.promise === promise) {
           ref.current = { reason, status: 'rejected' };
         }
-      }
+      },
     );
 
     ref.current = { promise, status: 'pending' };

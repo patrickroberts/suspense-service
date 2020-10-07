@@ -1,26 +1,26 @@
-import { useMemo } from 'react';
+import { useCallback } from 'react';
 import { useThenable } from './Thenable';
 
-/** @ignore */
+/** @internal */
 export default interface Resource<TResponse> {
-  read(): TResponse;
+  (): TResponse;
 }
 
 /** @ignore */
 export function useResource<TResponse>(
-  thenable: PromiseLike<TResponse>
+  thenable: PromiseLike<TResponse>,
 ): Resource<TResponse> {
   const ref = useThenable(thenable);
 
-  return useMemo(() => ({
-    read () {
-      const state = ref.current!;
+  return useCallback(() => {
+    const state = ref.current!;
+    const { status } = state;
 
-      switch (state.status) {
-        case 'pending': throw state.promise;
-        case 'rejected': throw state.reason;
-        case 'fulfilled': return state.value;
-      }
+    switch (state.status) {
+      case 'pending': throw state.promise;
+      case 'rejected': throw state.reason;
+      case 'fulfilled': return state.value;
+      default: throw new Error(`Unexpected status ${status}`);
     }
-  }), [ref]);
+  }, [ref]);
 }

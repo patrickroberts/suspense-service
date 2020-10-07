@@ -1,40 +1,54 @@
 import Id from '../Context/Id';
 import Context, { createContext, useContext } from '../Context/index';
+import Handler from './Handler';
 import Resource from './Resource';
 import ServiceConsumer, { createConsumer } from './Consumer';
 import ServiceProvider, { createProvider } from './Provider';
 
-/** @ignore */
-const kContext = Symbol();
+/**
+ * A privately scoped unique symbol for accessing Service internal Resource
+ * @internal
+ */
+const kResource = Symbol('kResource');
 
+/**
+ * A Suspense integration for providing asynchronous data through a Context API
+ */
 export default interface Service<TRequest, TResponse> {
   Consumer: ServiceConsumer<TResponse>;
   Provider: ServiceProvider<TRequest>;
   /** @internal */
-  [kContext]: Context<Resource<TResponse>>;
+  [kResource]: Context<Resource<TResponse>>;
 }
 
+/**
+ * Creates a Service Context for providing asynchronous data
+ * @param handler - a asynchronous function for fetching data
+ */
 export function createService<TRequest, TResponse>(
-  useHandler: (request: TRequest, id: Id) => PromiseLike<TResponse>
+  handler: Handler<TRequest, TResponse>,
 ): Service<TRequest, TResponse> {
-  const Context = createContext<Resource<TResponse>>({
-    read () {
-      throw new TypeError('Provider is not in scope');
-    }
+  const ResourceContext = createContext<Resource<TResponse>>(() => {
+    throw new TypeError('Provider is not in scope');
   });
 
   return {
-    Consumer: createConsumer(Context),
-    Provider: createProvider(Context, useHandler),
-    [kContext]: Context
+    Consumer: createConsumer(ResourceContext),
+    Provider: createProvider(ResourceContext, handler),
+    [kResource]: ResourceContext,
   };
 }
 
+/**
+ * Synchronously consumes a response from a ServiceProvider
+ * @param service - which Service to use
+ * @param id - which ServiceProvider to use
+ */
 export function useService<TResponse>(
-  Service: Service<any, TResponse>,
-  id: Id = null
+  service: Service<any, TResponse>,
+  id: Id = null,
 ): TResponse {
-  const resource = useContext(Service[kContext], id);
+  const resource = useContext(service[kResource], id);
 
-  return resource.read();
+  return resource();
 }

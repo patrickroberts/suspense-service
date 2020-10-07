@@ -5,13 +5,13 @@ export default interface Environment<T> {
   has (key: Id): boolean;
   get (key: Id): T | undefined;
   [Symbol.iterator] (): IterableIterator<[Id, T]>;
-};
+}
 
 /** @ignore */
 export function wrap<T>(
   env: Environment<T>,
   value: T,
-  id: Id
+  id: Id,
 ): Environment<T> {
   return new Map([...env, [id, value], [null, value]]);
 }
@@ -19,7 +19,7 @@ export function wrap<T>(
 /** @ignore */
 export function unwrap<T>(
   env: Environment<T>,
-  id: Id
+  id: Id,
 ): T {
   if (!env.has(id)) {
     throw new Error(`Provider with id ${String(id)} is not in scope`);
