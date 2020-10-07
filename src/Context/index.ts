@@ -26,7 +26,7 @@ export default interface Context<T> {
 
 /**
  * Creates a keyed Context allowing multiple nested Providers to be accessible in the same scope
- * @param defaultValue - the value consumed if no Provider is in scope and the consumer `id` is
+ * @param defaultValue the value consumed if no Provider is in scope and the consumer `id` is
  * `null`
  */
 export function createContext<T>(defaultValue: T): Context<T> {
@@ -43,8 +43,8 @@ export function createContext<T>(defaultValue: T): Context<T> {
 
 /**
  * Consumes a value from a ContextProvider
- * @param context - which Context to use
- * @param id - which ContextProvider to use
+ * @param context which Context to use
+ * @param id which ContextProvider to use
  */
 export function useContext<T>(
   context: Context<T>,
