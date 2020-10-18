@@ -1,33 +1,12 @@
 import React, {
-  Context, ComponentType, ReactNode, memo, useCallback, useMemo,
+  Context, ComponentType, memo, useCallback, useMemo,
 } from 'react';
-import PropTypes from 'prop-types';
-import Id, { PropTypesId } from './Id';
-import Environment, { unwrap } from './Environment';
+import Environment, { unwrap } from '../Environment';
+import Props, { defaultProps } from './Props';
 
-interface ContextConsumerProps<T> {
-  /**
-   * Which ContextProvider to use
-   * @default null
-   */
-  id?: Id;
-  children: (value: T) => ReactNode;
-}
-
-type ContextConsumer<T> = ComponentType<ContextConsumerProps<T>>;
+type ContextConsumer<T> = ComponentType<Props<T>>;
 
 export default ContextConsumer;
-
-/** @ignore */
-const propTypes = {
-  id: PropTypesId,
-  children: PropTypes.func.isRequired,
-};
-
-/** @ignore */
-const defaultProps = {
-  id: null,
-};
 
 /** @ignore */
 export function createConsumer<T>(
@@ -45,7 +24,6 @@ export function createConsumer<T>(
     ), [render]);
   };
 
-  EnvironmentConsumer.propTypes = propTypes;
   EnvironmentConsumer.defaultProps = defaultProps;
 
   return memo(EnvironmentConsumer, (prev, next) => (

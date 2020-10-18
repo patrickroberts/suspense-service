@@ -1,34 +1,13 @@
 import React, {
-  ComponentType, ReactNode, memo, useCallback, useMemo,
+  ComponentType, memo, useCallback, useMemo,
 } from 'react';
-import PropTypes from 'prop-types';
-import Id, { PropTypesId } from '../Context/Id';
-import Context from '../Context/index';
-import Resource from './Resource';
+import Context from '../../Context';
+import Resource from '../Resource';
+import Props, { defaultProps } from './Props';
 
-interface ServiceConsumerProps<TResponse> {
-  /**
-   * Which ServiceProvider to use
-   * @default null
-   */
-  id?: Id;
-  children: (value: TResponse) => ReactNode;
-}
-
-type ServiceConsumer<TResponse> = ComponentType<ServiceConsumerProps<TResponse>>;
+type ServiceConsumer<TResponse> = ComponentType<Props<TResponse>>;
 
 export default ServiceConsumer;
-
-/** @ignore */
-const propTypes = {
-  id: PropTypesId,
-  children: PropTypes.func.isRequired,
-};
-
-/** @ignore */
-const defaultProps = {
-  id: null,
-};
 
 /** @ignore */
 export function createConsumer<TResponse>(
@@ -46,7 +25,6 @@ export function createConsumer<TResponse>(
     ), [id, render]);
   };
 
-  ResourceConsumer.propTypes = propTypes;
   ResourceConsumer.defaultProps = defaultProps;
 
   return memo(ResourceConsumer, (prev, next) => (

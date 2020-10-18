@@ -1,5 +1,5 @@
 import Id from '../Context/Id';
-import Context, { createContext, useContext } from '../Context/index';
+import Context, { createContext, useContext } from '../Context';
 import Handler from './Handler';
 import Resource from './Resource';
 import ServiceConsumer, { createConsumer } from './Consumer';
@@ -23,13 +23,13 @@ export default interface Service<TRequest, TResponse> {
 
 /**
  * Creates a Service Context for providing asynchronous data
- * @param handler a asynchronous function for fetching data
+ * @param handler an asynchronous function for fetching data
  */
 export function createService<TRequest, TResponse>(
   handler: Handler<TRequest, TResponse>,
 ): Service<TRequest, TResponse> {
   const ResourceContext = createContext<Resource<TResponse>>(() => {
-    throw new TypeError('Provider is not in scope');
+    throw new Error('Provider is not in scope');
   });
 
   return {

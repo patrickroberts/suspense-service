@@ -1,34 +1,11 @@
 import { MutableRefObject, useMemo, useRef } from 'react';
-
-/** @ignore */
-interface PromiseStatePending {
-  promise: Promise<void>;
-  status: 'pending';
-}
-
-/** @ignore */
-interface PromiseStateFulfilled<TResponse> {
-  value: TResponse;
-  status: 'fulfilled';
-}
-
-/** @ignore */
-interface PromiseStateRejected {
-  reason: any;
-  status: 'rejected';
-}
-
-/** @ignore */
-export type PromiseState<TResponse> =
-  PromiseStatePending |
-  PromiseStateFulfilled<TResponse> |
-  PromiseStateRejected;
+import PromiseState from './PromiseState';
 
 /** @ignore */
 type RefObject<T> = MutableRefObject<T | undefined>;
 
 /** @ignore */
-export function useThenable<TResponse>(
+export default function useThenable<TResponse>(
   thenable: PromiseLike<TResponse>,
 ): RefObject<PromiseState<TResponse>> {
   const ref = useRef<PromiseState<TResponse>>();
@@ -52,7 +29,7 @@ export function useThenable<TResponse>(
     );
 
     ref.current = { promise, status: 'pending' };
-  }, [thenable, ref]);
+  }, [thenable]);
 
   return ref;
 }
