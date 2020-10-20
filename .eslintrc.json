@@ -2,6 +2,9 @@
   "globals": {
     "JSX": "readonly"
   },
+  "env": {
+    "jest/globals": true
+  },
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
@@ -18,6 +21,7 @@
   },
   "plugins": [
     "@typescript-eslint",
+    "jest",
     "react",
     "react-hooks"
   ],
@@ -39,8 +43,8 @@
       {
         "devDependencies": [
           "*.js",
-          "features/**/*.ts",
-          "features/**/*.tsx"
+          "**/*.test.ts",
+          "**/*.test.tsx"
         ]
       }
     ],
