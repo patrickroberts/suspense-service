@@ -1,6 +1,6 @@
 {
   "name": "suspense-service",
-  "version": "0.0.4-rc",
+  "version": "0.0.5-rc",
   "description": "Suspense integration library for React",
   "repository": "github:patrickroberts/suspense-service",
   "main": "dst/cjs/suspense-service.js",
@@ -10,14 +10,14 @@
   "scripts": {
     "clean": "rimraf dst docs/**/*.md",
     "lint": "eslint . --ext .js,.ts,.tsx",
+    "test": "jest",
     "build": "rollup --config --environment NODE_ENV:production",
     "rebuild": "npm run clean && npm run build",
-    "test": "jest",
     "docs": "typedoc src/index.ts",
     "watch:build": "npm run build -- --environment NODE_ENV:development --watch",
     "watch:test": "npm test -- --watch",
     "watch": "concurrently 'npm:watch:*'",
-    "prepublishOnly": "npm run rebuild && npm run lint && npm test && npm run docs"
+    "prepublishOnly": "npm run clean && npm run lint && npm test && npm run build && npm run docs"
   },
   "author": "Patrick Roberts",
   "license": "MIT",
