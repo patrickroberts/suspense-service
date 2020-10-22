@@ -18,6 +18,8 @@ export default function useThenable<TResponse>(
         if (state.status === 'pending' && state.promise === promise) {
           ref.current = { value, status: 'fulfilled' };
         }
+
+        return value;
       },
       (reason) => {
         const state = ref.current!;
@@ -25,6 +27,8 @@ export default function useThenable<TResponse>(
         if (state.status === 'pending' && state.promise === promise) {
           ref.current = { reason, status: 'rejected' };
         }
+
+        throw reason;
       },
     );
 

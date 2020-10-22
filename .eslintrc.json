@@ -26,7 +26,10 @@
     "react-hooks"
   ],
   "rules": {
-    "@typescript-eslint/consistent-type-definitions": ["error", "interface"],
+    "@typescript-eslint/consistent-type-definitions": [
+      "error",
+      "interface"
+    ],
     "@typescript-eslint/member-delimiter-style": "error",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
@@ -58,12 +61,20 @@
       }
     ],
     "react/jsx-props-no-spreading": "off",
+    "react/state-in-constructor": [
+      "error",
+      "never"
+    ],
     "semi": "off"
   },
   "settings": {
     "import/resolver": {
       "node": {
-        "extensions": [".js", ".ts", ".tsx"]
+        "extensions": [
+          ".js",
+          ".ts",
+          ".tsx"
+        ]
       }
     }
   }

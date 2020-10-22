@@ -1,6 +1,6 @@
 /** @ignore */
-interface PromiseStatePending {
-  promise: Promise<void>;
+interface PromiseStatePending<TResponse> {
+  promise: Promise<TResponse>;
   status: 'pending';
 }
 
@@ -18,7 +18,7 @@ interface PromiseStateRejected {
 
 /** @ignore */
 type PromiseState<TResponse> =
-  PromiseStatePending |
+  PromiseStatePending<TResponse> |
   PromiseStateFulfilled<TResponse> |
   PromiseStateRejected;
 
