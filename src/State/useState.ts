@@ -9,8 +9,8 @@ function isUpdater<S>(setStateAction: SetStateAction<S>): setStateAction is (pre
 }
 
 /**
- * An extension of React useState that is sensitive to initialState
- * Intended to accept the return value of useContext or useService as initialState
+ * An extension of React useState that is sensitive to initialState.
+ * Intended to accept the return value of useContext or useService as initialState.
  * @param initialState the initial state
  * @param reset the reset function when initialState updates
  */

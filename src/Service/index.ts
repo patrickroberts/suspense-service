@@ -23,7 +23,7 @@ export default interface Service<TRequest, TResponse> {
 
 /**
  * Creates a Service Context for providing asynchronous data
- * @param handler an asynchronous function for fetching data
+ * @param handler the asynchronous function for fetching data
  */
 export function createService<TRequest, TResponse>(
   handler: Handler<TRequest, TResponse>,
@@ -41,8 +41,8 @@ export function createService<TRequest, TResponse>(
 
 /**
  * Synchronously consumes a response from a ServiceProvider
- * @param service which Service to use
- * @param id which ServiceProvider to use
+ * @param service the Service to use
+ * @param id the ServiceProvider id to use
  */
 export function useService<TResponse>(
   service: Service<any, TResponse>,

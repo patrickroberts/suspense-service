@@ -43,8 +43,8 @@ export function createContext<T>(defaultValue: T): Context<T> {
 
 /**
  * Consumes a value from a ContextProvider
- * @param context which Context to use
- * @param id which ContextProvider to use
+ * @param context the Context to use
+ * @param id the ContextProvider id to use
  */
 export function useContext<T>(
   context: Context<T>,

@@ -1,7 +1,7 @@
 /**
- * The type for reset function when initialState updates
+ * The type of reset function when initialState updates
  */
-type Reset<T> = (prevState: T, newInitialState: T) => T;
+type Reset<S> = (prevState: S, newInitialState: S) => S;
 
 export default Reset;
 
@@ -11,4 +11,6 @@ export default Reset;
  * @param prevState the previous state
  * @param newInitialState the new initial state
  */
-export const defaultReset: Reset<any> = (prevState, newInitialState) => newInitialState;
+export function defaultReset<S>(prevState: S, newInitialState: S): S {
+  return newInitialState;
+}

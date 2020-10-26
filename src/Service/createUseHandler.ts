@@ -3,8 +3,7 @@ import {
 } from 'react';
 import Id from '../Context/Id';
 import Handler from './Handler';
-import Resource from './Resource';
-import useResource from './useResource';
+import Resource, { useResource } from './Resource';
 
 /** @ignore */
 type Callbacks<TResponse> = Required<Parameters<Promise<TResponse>['then']>>;
@@ -13,7 +12,7 @@ type Callbacks<TResponse> = Required<Parameters<Promise<TResponse>['then']>>;
 export default function createUseHandler<TRequest, TResponse>(
   handler: Handler<TRequest, TResponse>,
 ) {
-  return (request: TRequest, id: Id): Resource<TResponse> => {
+  return function useHandler(request: TRequest, id: Id = null): Resource<TResponse> {
     const ref = useRef<Callbacks<TResponse>>();
     const createPromise = useCallback(() => (
       new Promise<TResponse>((resolve, reject) => {

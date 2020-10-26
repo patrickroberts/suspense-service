@@ -12,7 +12,7 @@ export default ContextProvider;
 export function createProvider<T>(
   EnvironmentContext: Context<Environment<T>>,
 ): ContextProvider<T> {
-  const Provider: ContextProvider<T> = ({ value, id = null, children }) => {
+  const Provider: ContextProvider<T> = ({ value, id, children }) => {
     const prev = useContext(EnvironmentContext);
     const next = useMemo(() => (
       wrap(prev, value, id)

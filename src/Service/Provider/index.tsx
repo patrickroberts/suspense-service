@@ -18,7 +18,7 @@ export function createProvider<TRequest, TResponse>(
 ): ServiceProvider<TRequest> {
   const useHandler = createUseHandler(handler);
   const ResourceProvider: ServiceProvider<TRequest> = ({
-    value, id = null, children, fallback,
+    value, id, children, fallback,
   }) => {
     const resource = useHandler(value, id);
     const element = useMemo(() => (

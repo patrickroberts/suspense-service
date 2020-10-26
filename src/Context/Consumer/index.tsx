@@ -12,7 +12,7 @@ export default ContextConsumer;
 export function createConsumer<T>(
   { Consumer }: Context<Environment<T>>,
 ): ContextConsumer<T> {
-  const EnvironmentConsumer: ContextConsumer<T> = ({ id = null, children }) => {
+  const EnvironmentConsumer: ContextConsumer<T> = ({ id, children }) => {
     const render = useCallback((env: Environment<T>) => {
       const value = unwrap(env, id);
 
