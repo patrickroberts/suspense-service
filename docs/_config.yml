@@ -1,1 +1,3 @@
 markdown: CommonMarkGhPages
+commonmark:
+  extensions: ["table"]
