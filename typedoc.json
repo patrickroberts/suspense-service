@@ -3,5 +3,5 @@
   "hideProjectName": true,
   "mode": "file",
   "out": "docs",
-  "sourcefile-url-prefix": "https://github.com/patrickroberts/suspense-service/blob/master/"
+  "sourcefile-url-prefix": "https://github.com/patrickroberts/suspense-service/blob/master/src/"
 }
