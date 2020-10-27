@@ -12,20 +12,21 @@ export default ContextProvider;
 export function createProvider<T>(
   EnvironmentContext: Context<Environment<T>>,
 ): ContextProvider<T> {
-  const Provider: ContextProvider<T> = ({ value, id, children }) => {
+  const { Provider } = EnvironmentContext;
+  const EnvironmentProvider: ContextProvider<T> = ({ value, id, children }) => {
     const prev = useContext(EnvironmentContext);
     const next = useMemo(() => (
       wrap(prev, value, id)
     ), [value, id, prev]);
 
     return useMemo(() => (
-      <EnvironmentContext.Provider value={next}>{children}</EnvironmentContext.Provider>
+      <Provider value={next}>{children}</Provider>
     ), [children, next]);
   };
 
-  Provider.defaultProps = defaultProps;
+  EnvironmentProvider.defaultProps = defaultProps;
 
-  return memo(Provider, (prev, next) => (
+  return memo(EnvironmentProvider, (prev, next) => (
     Object.is(prev.value, next.value)
     && Object.is(prev.id, next.id)
     && Object.is(prev.children, next.children)

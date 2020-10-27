@@ -14,21 +14,23 @@ import useForceUpdate from './useForceUpdate';
 export default function useReducer<R extends Reducer<any, any>>(
   reducer: R, initialState: ReducerState<R>, reset: Reset<ReducerState<R>> = defaultReset,
 ): [ReducerState<R>, Dispatch<ReducerAction<R>>] {
-  const reducerRef = useRef(reducer);
-  const initialStateRef = useRef(initialState);
-  const resetRef = useRef(reset);
-  const stateRef = useRef(initialState);
-
-  if (!Object.is(initialStateRef.current, initialState)) {
-    initialStateRef.current = initialState;
-    stateRef.current = resetRef.current(stateRef.current, initialState);
-  }
-
   const forceUpdate = useForceUpdate();
-  const dispatchRef = useRef((action: ReducerAction<R>) => {
-    stateRef.current = reducerRef.current(stateRef.current, action);
-    forceUpdate();
+  const { current } = useRef({
+    reducer,
+    initialState,
+    state: initialState,
+    dispatch: (action: ReducerAction<R>) => {
+      current.state = current.reducer(current.state, action);
+      forceUpdate();
+    },
   });
 
-  return [stateRef.current, dispatchRef.current];
+  current.reducer = reducer;
+
+  if (!Object.is(current.initialState, initialState)) {
+    current.initialState = initialState;
+    current.state = reset(current.state, initialState);
+  }
+
+  return [current.state, current.dispatch];
 }

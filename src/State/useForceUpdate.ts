@@ -1,9 +1,7 @@
-import { DispatchWithoutAction, useRef, useState } from 'react';
+import { DispatchWithoutAction, useReducer } from 'react';
 
 /** @ignore */
 export default function useForceUpdate(): DispatchWithoutAction {
-  const [, dispatch] = useState({});
-  const dispatchRef = useRef(() => dispatch({}));
-
-  return dispatchRef.current;
+  const [, dispatch] = useReducer(() => ({}), {});
+  return dispatch;
 }
