@@ -22,6 +22,8 @@ export default interface Service<TRequest, TResponse> {
   [kResource]: IdContext<[Resource<TResponse>, Dispatch<SetStateAction<TRequest>>]>;
 }
 
+export { Handler };
+
 const defaultFn = () => { throw new Error('Provider is not in scope'); };
 const defaultValue: [Resource<never>, Dispatch<any>] = [defaultFn, defaultFn];
 
