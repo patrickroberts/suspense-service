@@ -1,19 +1,18 @@
-import React, {
-  ComponentType, Context, memo, useContext, useMemo,
-} from 'react';
+import React, { ComponentType, Context, memo, useContext, useMemo } from 'react';
 import Environment, { wrap } from '../Environment';
-import Props, { defaultProps } from './Props';
+import IdContextProviderProps, { defaultProps } from './Props';
 
-type ContextProvider<T> = ComponentType<Props<T>>;
+type IdContextProvider<T> = ComponentType<IdContextProviderProps<T>>;
 
-export default ContextProvider;
+export default IdContextProvider;
+export { IdContextProviderProps };
 
 /** @ignore */
-export function createProvider<T>(
+export function createIdContextProvider<T>(
   EnvironmentContext: Context<Environment<T>>,
-): ContextProvider<T> {
+): IdContextProvider<T> {
   const { Provider } = EnvironmentContext;
-  const EnvironmentProvider: ContextProvider<T> = ({ value, id, children }) => {
+  const EnvironmentProvider: IdContextProvider<T> = ({ value, id, children }) => {
     const prev = useContext(EnvironmentContext);
     const next = useMemo(() => (
       wrap(prev, value, id)

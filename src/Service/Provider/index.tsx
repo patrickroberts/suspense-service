@@ -1,43 +1,43 @@
-import React, {
-  ComponentType, Suspense, isValidElement, memo, useMemo,
-} from 'react';
-import Context from '../../Context/index';
-import Handler from '../Handler';
+import React, { ComponentType, Dispatch, SetStateAction, Suspense, isValidElement, memo, useMemo } from 'react';
+import Id from '../../IdContext/Id';
+import IdContext from '../../IdContext';
+import useResetState from '../../State/useResetState';
 import Resource from '../Resource';
-import createUseHandler from '../createUseHandler';
-import Props, { defaultProps } from './Props';
+import ServiceProviderProps, { defaultProps } from './Props';
 
-type ServiceProvider<TRequest> = ComponentType<Props<TRequest>>;
+type ServiceProvider<TRequest> = ComponentType<ServiceProviderProps<TRequest>>;
 
 export default ServiceProvider;
+export { ServiceProviderProps };
 
 /** @ignore */
-export function createProvider<TRequest, TResponse>(
-  { Provider }: Context<Resource<TResponse>>,
-  handler: Handler<TRequest, TResponse>,
+export function createServiceProvider<TRequest, TResponse>(
+  { Provider }: IdContext<[Resource<TResponse>, Dispatch<SetStateAction<TRequest>>]>,
+  useHandler: (request: TRequest, id?: Id) => Resource<TResponse>,
 ): ServiceProvider<TRequest> {
-  const useHandler = createUseHandler(handler);
   const ResourceProvider: ServiceProvider<TRequest> = ({
-    value, id, children, fallback,
+    request, id, children, fallback, reset,
   }) => {
-    const resource = useHandler(value, id);
+    const [state, setState] = useResetState(request, reset);
+    const resource = useHandler(state, id);
     const element = useMemo(() => (
       isValidElement(fallback)
         ? <Suspense fallback={fallback}>{children}</Suspense>
-        : <>{children}</>
+        : children
     ), [children, fallback]);
 
     return useMemo(() => (
-      <Provider value={resource} id={id}>{element}</Provider>
-    ), [resource, id, element]);
+      <Provider value={[resource, setState]} id={id}>{element}</Provider>
+    ), [resource, setState, id, element]);
   };
 
   ResourceProvider.defaultProps = defaultProps;
 
   return memo(ResourceProvider, (prev, next) => (
-    Object.is(prev.value, next.value)
+    Object.is(prev.request, next.request)
     && Object.is(prev.id, next.id)
     && Object.is(prev.children, next.children)
     && Object.is(prev.fallback, next.fallback)
+    && Object.is(prev.reset, next.reset)
   ));
 }

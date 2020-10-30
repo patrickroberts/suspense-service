@@ -33,7 +33,20 @@
     "@typescript-eslint/member-delimiter-style": "error",
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/no-non-null-assertion": "off",
+    "@typescript-eslint/no-redeclare": "error",
+    "@typescript-eslint/no-shadow": "error",
     "@typescript-eslint/semi": "error",
+    "@typescript-eslint/space-before-function-paren": [
+      "error",
+      {
+        "named": "never",
+        "asyncArrow": "always"
+      }
+    ],
+    "function-paren-newline": [
+      "error",
+      "consistent"
+    ],
     "import/extensions": [
       "error",
       "never",
@@ -51,7 +64,21 @@
         ]
       }
     ],
+    "no-plusplus": [
+      "error",
+      {
+        "allowForLoopAfterthoughts": true
+      }
+    ],
+    "no-redeclare": "off",
+    "no-shadow": "off",
     "no-unused-vars": "off",
+    "object-curly-newline": [
+      "error",
+      {
+        "consistent": true
+      }
+    ],
     "react/jsx-filename-extension": [
       "error",
       {
@@ -65,7 +92,8 @@
       "error",
       "never"
     ],
-    "semi": "off"
+    "semi": "off",
+    "space-before-function-paren": "off"
   },
   "settings": {
     "import/resolver": {

@@ -1,23 +1,25 @@
-import React, {
-  ComponentType, memo, useCallback, useMemo,
-} from 'react';
-import Context from '../../Context';
+import React, { ComponentType, Dispatch, SetStateAction, memo, useCallback, useMemo } from 'react';
+import IdContext from '../../IdContext';
 import Resource from '../Resource';
-import Props, { defaultProps } from './Props';
+import ServiceConsumerProps, { defaultProps } from './Props';
 
-type ServiceConsumer<TResponse> = ComponentType<Props<TResponse>>;
+type ServiceConsumer<TRequest, TResponse> =
+  ComponentType<ServiceConsumerProps<TRequest, TResponse>>;
 
 export default ServiceConsumer;
+export { ServiceConsumerProps };
 
 /** @ignore */
-export function createConsumer<TResponse>(
-  { Consumer }: Context<Resource<TResponse>>,
-): ServiceConsumer<TResponse> {
-  const ResourceConsumer: ServiceConsumer<TResponse> = ({ id, children }) => {
-    const render = useCallback((resource: Resource<TResponse>) => {
-      const value = resource();
+export function createServiceConsumer<TRequest, TResponse>(
+  { Consumer }: IdContext<[Resource<TResponse>, Dispatch<SetStateAction<TRequest>>]>,
+): ServiceConsumer<TRequest, TResponse> {
+  const ResourceConsumer: ServiceConsumer<TRequest, TResponse> = ({ id, children }) => {
+    const render = useCallback((
+      [resource, setState]: [Resource<TResponse>, Dispatch<SetStateAction<TRequest>>],
+    ) => {
+      const response = resource();
 
-      return children(value);
+      return children(response, setState);
     }, [children]);
 
     return useMemo(() => (

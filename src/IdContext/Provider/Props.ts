@@ -1,16 +1,19 @@
 import { ReactNode } from 'react';
 import Id from '../Id';
 
-export default interface ContextProviderProps<T> {
+export default interface IdContextProviderProps<T> {
   /**
-   * A value to provide
+   * The value to provide
    */
   value: T;
   /**
-   * A key that allows nested Providers to be used
+   * The key that identifies the {@link IdContextProvider} to be consumed
    * @default null
    */
   id?: Id;
+  /**
+   * @default null
+   */
   children?: ReactNode;
 }
 

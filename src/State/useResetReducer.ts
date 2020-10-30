@@ -1,17 +1,17 @@
-import {
-  Dispatch, Reducer, ReducerAction, ReducerState, useRef,
-} from 'react';
+import { Dispatch, Reducer, ReducerAction, ReducerState, useRef } from 'react';
 import Reset, { defaultReset } from './Reset';
 import useForceUpdate from './useForceUpdate';
 
 /**
+ * @ignore
  * An extension of React useReducer that is sensitive to initialState.
- * Intended to accept the return value of useContext or useService as initialState.
+ * Intended to accept the return value of
+ * {@link useIdContext} or {@link useService} as initialState.
  * @param reducer the reducer function when dispatch is called
  * @param initialState the initial state
  * @param reset the reset function when initialState updates
  */
-export default function useReducer<R extends Reducer<any, any>>(
+export default function useResetReducer<R extends Reducer<any, any>>(
   reducer: R, initialState: ReducerState<R>, reset: Reset<ReducerState<R>> = defaultReset,
 ): [ReducerState<R>, Dispatch<ReducerAction<R>>] {
   const forceUpdate = useForceUpdate();

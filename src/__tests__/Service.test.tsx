@@ -1,15 +1,10 @@
+import { promisify } from 'util';
 import React, { ReactNode, Suspense } from 'react';
 import { ReactTestRenderer, act, create } from 'react-test-renderer';
 import ErrorBoundary from '../__fixtures__/ErrorBoundary';
 import mockRender from '../__fixtures__/mockRender';
 import withService from '../__fixtures__/withService';
 import { createService } from '../Service';
-
-const allPromiseChainsAdoptingSettledPromises = () => (
-  new Promise((resolve) => {
-    setImmediate(resolve);
-  })
-);
 
 describe('Service', () => {
   beforeEach(() => {
@@ -37,24 +32,19 @@ describe('Service', () => {
     root.unmount();
   });
 
+  const whenAllSettledPromisesAreFlushed = promisify(setImmediate);
+
   describe('expected errors', () => {
-    let noProviderError: Error;
-    let createContextSpy: jest.SpyInstance;
+    beforeEach(() => {
+      mockRender.mockClear();
+    });
 
     beforeEach(() => {
-      const actual = jest.requireActual<typeof import('../Context')>('../Context');
-      const actualCreateContext = actual.createContext;
-
-      noProviderError = new Error();
-      createContextSpy = jest.spyOn(actual, 'createContext').mockImplementationOnce(
-        () => actualCreateContext<any>(() => {
-          throw noProviderError;
-        }),
-      );
+      useServiceSpy.mockClear();
     });
 
     afterEach(() => {
-      createContextSpy.mockRestore();
+      root.unmount();
     });
 
     let mockConsoleErrorToSilenceErrorBoundaries: jest.SpyInstance;
@@ -76,9 +66,6 @@ describe('Service', () => {
       const mockOnError = jest.fn();
       const UnderTest = createService<unknown, string>(mockHandler);
 
-      expect(createContextSpy).toBeCalledTimes(1);
-      expect(createContextSpy.mock.calls[0][0]).toThrow();
-
       act(() => {
         root = create(
           <ErrorBoundary fallback={<pre>error</pre>} onError={mockOnError}>
@@ -91,7 +78,7 @@ describe('Service', () => {
 
       expect(mockRender).not.toBeCalled();
       expect(mockHandler).not.toBeCalled();
-      expect(mockOnError).toBeCalledWith(noProviderError);
+      expect(mockOnError).toBeCalledWith(expect.any(Error));
       expect(root.toJSON()).toMatchInlineSnapshot(`
         <pre>
           error
@@ -105,9 +92,6 @@ describe('Service', () => {
       const UnderTest = createService<unknown, ReactNode>(mockHandler);
       const Consumer = withService(UnderTest);
 
-      expect(createContextSpy).toBeCalledTimes(1);
-      expect(createContextSpy.mock.calls[0][0]).toThrow();
-
       act(() => {
         root = create(
           <ErrorBoundary fallback={<pre>error</pre>} onError={mockOnError}>
@@ -118,9 +102,9 @@ describe('Service', () => {
 
       expect(useServiceSpy).toBeCalledWith(UnderTest, null);
       expect(useServiceSpy.mock.results[0].type).toBe('throw');
-      expect(useServiceSpy.mock.results[0].value).toBe(noProviderError);
+      expect(useServiceSpy.mock.results[0].value).toBeInstanceOf(Error);
       expect(mockHandler).not.toBeCalled();
-      expect(mockOnError).toBeCalledWith(noProviderError);
+      expect(mockOnError).toBeCalledWith(expect.any(Error));
       expect(root.toJSON()).toMatchInlineSnapshot(`
         <pre>
           error
@@ -137,7 +121,7 @@ describe('Service', () => {
 
       act(() => {
         root = create(
-          <UnderTest.Provider value={request}>
+          <UnderTest.Provider request={request}>
             <ErrorBoundary fallback={<pre>error</pre>} onError={mockOnError}>
               <Suspense fallback={<p>suspended</p>}>
                 <UnderTest.Consumer>
@@ -163,7 +147,7 @@ describe('Service', () => {
       mockOnError.mockClear();
 
       await act(async () => {
-        await allPromiseChainsAdoptingSettledPromises();
+        await whenAllSettledPromisesAreFlushed();
       });
 
       expect(mockRender).not.toBeCalled();
@@ -186,7 +170,7 @@ describe('Service', () => {
 
       act(() => {
         root = create(
-          <UnderTest.Provider value={request}>
+          <UnderTest.Provider request={request}>
             <ErrorBoundary fallback={<pre>error</pre>} onError={mockOnError}>
               <Suspense fallback={<p>suspended</p>}>
                 <Consumer />
@@ -212,7 +196,7 @@ describe('Service', () => {
       mockOnError.mockClear();
 
       await act(async () => {
-        await allPromiseChainsAdoptingSettledPromises();
+        await whenAllSettledPromisesAreFlushed();
       });
 
       expect(useServiceSpy).toBeCalledWith(UnderTest, null);
@@ -236,7 +220,7 @@ describe('Service', () => {
 
     act(() => {
       root = create(
-        <UnderTest.Provider value={request}>
+        <UnderTest.Provider request={request}>
           <Suspense fallback={<p>suspended</p>}>
             <UnderTest.Consumer>
               {mockRender}
@@ -258,10 +242,10 @@ describe('Service', () => {
     mockHandler.mockClear();
 
     await act(async () => {
-      await allPromiseChainsAdoptingSettledPromises();
+      await whenAllSettledPromisesAreFlushed();
     });
 
-    expect(mockRender).toBeCalledWith(response);
+    expect(mockRender).toBeCalledWith(response, expect.any(Function));
     expect(mockHandler).not.toBeCalled();
     expect(root.toJSON()).toMatchInlineSnapshot(`
       <span>
@@ -279,7 +263,7 @@ describe('Service', () => {
 
     act(() => {
       root = create(
-        <UnderTest.Provider value={request}>
+        <UnderTest.Provider request={request}>
           <Suspense fallback={<p>suspended</p>}>
             <Consumer />
           </Suspense>
@@ -301,7 +285,7 @@ describe('Service', () => {
     mockHandler.mockClear();
 
     await act(async () => {
-      await allPromiseChainsAdoptingSettledPromises();
+      await whenAllSettledPromisesAreFlushed();
     });
 
     expect(useServiceSpy).toBeCalledWith(UnderTest, null);
@@ -321,15 +305,19 @@ describe('Service', () => {
     const innerId = 'b';
     const outerResponse = 'three';
     const innerResponse = 'two';
-    const mockHandler = jest.fn()
-      .mockResolvedValueOnce(innerResponse)
-      .mockResolvedValueOnce(outerResponse);
+    const mockHandler = jest.fn(
+      async (request: number) => (
+        request === outerRequest
+          ? outerResponse
+          : innerResponse
+      ),
+    );
     const UnderTest = createService<number, string>(mockHandler);
 
     act(() => {
       root = create(
-        <UnderTest.Provider value={3} id={outerId}>
-          <UnderTest.Provider value={2} id={innerId}>
+        <UnderTest.Provider request={3} id={outerId}>
+          <UnderTest.Provider request={2} id={innerId}>
             <Suspense fallback={<p>suspended</p>}>
               <UnderTest.Consumer id={outerId}>
                 {mockRender}
@@ -341,8 +329,8 @@ describe('Service', () => {
     });
 
     expect(mockRender).not.toBeCalled();
-    expect(mockHandler).nthCalledWith(1, innerRequest, innerId);
-    expect(mockHandler).nthCalledWith(2, outerRequest, outerId);
+    expect(mockHandler).toBeCalledWith(outerRequest, outerId);
+    expect(mockHandler).toBeCalledWith(innerRequest, innerId);
     expect(root.toJSON()).toMatchInlineSnapshot(`
       <p>
         suspended
@@ -353,10 +341,10 @@ describe('Service', () => {
     mockHandler.mockClear();
 
     await act(async () => {
-      await allPromiseChainsAdoptingSettledPromises();
+      await whenAllSettledPromisesAreFlushed();
     });
 
-    expect(mockRender).toBeCalledWith(outerResponse);
+    expect(mockRender).toBeCalledWith(outerResponse, expect.any(Function));
     expect(mockHandler).not.toBeCalled();
     expect(root.toJSON()).toMatchInlineSnapshot(`
       <span>
@@ -372,16 +360,20 @@ describe('Service', () => {
     const innerId = 'b';
     const outerResponse = 'three';
     const innerResponse = 'two';
-    const mockHandler = jest.fn()
-      .mockResolvedValueOnce(innerResponse)
-      .mockResolvedValueOnce(outerResponse);
+    const mockHandler = jest.fn(
+      async (request: number) => (
+        request === outerRequest
+          ? outerResponse
+          : innerResponse
+      ),
+    );
     const UnderTest = createService<number, ReactNode>(mockHandler);
     const Consumer = withService(UnderTest);
 
     act(() => {
       root = create(
-        <UnderTest.Provider value={outerRequest} id={outerId}>
-          <UnderTest.Provider value={innerRequest} id={innerId}>
+        <UnderTest.Provider request={outerRequest} id={outerId}>
+          <UnderTest.Provider request={innerRequest} id={innerId}>
             <Suspense fallback={<p>suspended</p>}>
               <Consumer id={outerId} />
             </Suspense>
@@ -393,8 +385,8 @@ describe('Service', () => {
     expect(useServiceSpy).toBeCalledWith(UnderTest, outerId);
     expect(useServiceSpy.mock.results[0].type).toBe('throw');
     expect(useServiceSpy.mock.results[0].value).resolves.toBe(outerResponse);
-    expect(mockHandler).nthCalledWith(1, innerRequest, innerId);
-    expect(mockHandler).nthCalledWith(2, outerRequest, outerId);
+    expect(mockHandler).toBeCalledWith(outerRequest, outerId);
+    expect(mockHandler).toBeCalledWith(innerRequest, innerId);
     expect(root.toJSON()).toMatchInlineSnapshot(`
       <p>
         suspended
@@ -405,7 +397,7 @@ describe('Service', () => {
     mockHandler.mockClear();
 
     await act(async () => {
-      await allPromiseChainsAdoptingSettledPromises();
+      await whenAllSettledPromisesAreFlushed();
     });
 
     expect(useServiceSpy).toBeCalledWith(UnderTest, outerId);
@@ -426,7 +418,7 @@ describe('Service', () => {
 
     act(() => {
       root = create(
-        <UnderTest.Provider value={request} fallback={<p>suspended</p>}>
+        <UnderTest.Provider request={request} fallback={<p>suspended</p>}>
           <UnderTest.Consumer>
             {mockRender}
           </UnderTest.Consumer>
@@ -446,10 +438,10 @@ describe('Service', () => {
     mockHandler.mockClear();
 
     await act(async () => {
-      await allPromiseChainsAdoptingSettledPromises();
+      await whenAllSettledPromisesAreFlushed();
     });
 
-    expect(mockRender).toBeCalledWith(response);
+    expect(mockRender).toBeCalledWith(response, expect.any(Function));
     expect(mockHandler).not.toBeCalled();
     expect(root.toJSON()).toMatchInlineSnapshot(`
       <span>
@@ -467,7 +459,7 @@ describe('Service', () => {
 
     act(() => {
       root = create(
-        <UnderTest.Provider value={request} fallback={<p>suspended</p>}>
+        <UnderTest.Provider request={request} fallback={<p>suspended</p>}>
           <Consumer />
         </UnderTest.Provider>,
       );
@@ -487,7 +479,7 @@ describe('Service', () => {
     mockHandler.mockClear();
 
     await act(async () => {
-      await allPromiseChainsAdoptingSettledPromises();
+      await whenAllSettledPromisesAreFlushed();
     });
 
     expect(useServiceSpy).toBeCalledWith(UnderTest, null);
@@ -502,12 +494,12 @@ describe('Service', () => {
 
   it('should not suspend if Provider is not consumed', async () => {
     const request = 6;
-    const mockHandler = jest.fn().mockReturnValueOnce(new Promise(() => undefined));
-    const UnderTest = createService<number, ReactNode>(mockHandler);
+    const mockHandler = jest.fn().mockReturnValueOnce(Promise.race([]));
+    const UnderTest = createService<number, never>(mockHandler);
 
     act(() => {
       root = create(
-        <UnderTest.Provider value={request}>
+        <UnderTest.Provider request={request}>
           <section>
             other
           </section>

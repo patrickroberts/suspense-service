@@ -1,18 +1,17 @@
-import React, {
-  Context, ComponentType, memo, useCallback, useMemo,
-} from 'react';
+import React, { Context, ComponentType, memo, useCallback, useMemo } from 'react';
 import Environment, { unwrap } from '../Environment';
-import Props, { defaultProps } from './Props';
+import IdContextConsumerProps, { defaultProps } from './Props';
 
-type ContextConsumer<T> = ComponentType<Props<T>>;
+type IdContextConsumer<T> = ComponentType<IdContextConsumerProps<T>>;
 
-export default ContextConsumer;
+export default IdContextConsumer;
+export { IdContextConsumerProps };
 
 /** @ignore */
-export function createConsumer<T>(
+export function createIdContextConsumer<T>(
   { Consumer }: Context<Environment<T>>,
-): ContextConsumer<T> {
-  const EnvironmentConsumer: ContextConsumer<T> = ({ id, children }) => {
+): IdContextConsumer<T> {
+  const EnvironmentConsumer: IdContextConsumer<T> = ({ id, children }) => {
     const render = useCallback((env: Environment<T>) => {
       const value = unwrap(env, id);
 

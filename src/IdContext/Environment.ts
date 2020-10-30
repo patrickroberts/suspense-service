@@ -13,7 +13,7 @@ export function wrap<T>(
   value: T,
   id: Id = null,
 ): Environment<T> {
-  return new Map([...env, [id, value], [null, value]]);
+  return new Map(env).set(id, value).set(null, value);
 }
 
 /** @ignore */

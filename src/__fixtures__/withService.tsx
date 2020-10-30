@@ -1,5 +1,5 @@
 import React, { ComponentType, ReactNode } from 'react';
-import Id from '../Context/Id';
+import Id from '../IdContext/Id';
 import Service, { useService } from '../Service';
 
 const withService: (

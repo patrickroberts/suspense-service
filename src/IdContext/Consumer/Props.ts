@@ -1,9 +1,9 @@
 import { ReactNode } from 'react';
 import Id from '../Id';
 
-export default interface ContextConsumerProps<T> {
+export default interface IdContextConsumerProps<T> {
   /**
-   * Which ContextProvider to use
+   * The {@link IdContextProvider} to use
    * @default null
    */
   id?: Id;

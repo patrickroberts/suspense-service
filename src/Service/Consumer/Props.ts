@@ -1,13 +1,13 @@
-import { ReactNode } from 'react';
-import Id from '../../Context/Id';
+import { Dispatch, ReactNode, SetStateAction } from 'react';
+import Id from '../../IdContext/Id';
 
-export default interface ServiceConsumerProps<TResponse> {
+export default interface ServiceConsumerProps<TRequest, TResponse> {
   /**
-   * Which ServiceProvider to use
+   * The {@link ServiceProvider} to use
    * @default null
    */
   id?: Id;
-  children: (value: TResponse) => ReactNode;
+  children: (value: TResponse, setState: Dispatch<SetStateAction<TRequest>>) => ReactNode;
 }
 
 /** @ignore */

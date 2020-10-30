@@ -1,19 +1,21 @@
+import Status from './Status';
+
 /** @ignore */
 interface PromiseStatePending<TResponse> {
   promise: Promise<TResponse>;
-  status: 'pending';
+  status: Status.Pending;
 }
 
 /** @ignore */
 interface PromiseStateFulfilled<TResponse> {
   value: TResponse;
-  status: 'fulfilled';
+  status: Status.Fulfilled;
 }
 
 /** @ignore */
 interface PromiseStateRejected {
   reason: any;
-  status: 'rejected';
+  status: Status.Rejected;
 }
 
 /** @ignore */

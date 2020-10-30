@@ -1,4 +1,4 @@
-import Environment, { wrap, unwrap } from '../Context/Environment';
+import Environment, { wrap, unwrap } from '../IdContext/Environment';
 
 describe('Environment', () => {
   let env: Environment<number>;

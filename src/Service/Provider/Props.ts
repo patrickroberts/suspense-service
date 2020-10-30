@@ -1,24 +1,33 @@
 import { ReactNode } from 'react';
-import Id from '../../Context/Id';
+import Id from '../../IdContext/Id';
+import Reset from '../../State/Reset';
 
 export default interface ServiceProviderProps<TRequest> {
   /**
-   * A request passed to `useHandler()` for fetching an asynchronous resource.
+   * The request passed to {@link createService | handler} for fetching an asynchronous resource.
    */
-  value: TRequest;
+  request: TRequest;
   /**
-   * A key that allows nested Providers to be consumed
+   * The key that identifies the {@link ServiceProvider} to be consumed
    * @default null
    */
   id?: Id;
+  /**
+   * @default null
+   */
   children?: ReactNode;
   /**
-   * A fallback to render if any children are suspended.
+   * The fallback to render if any children are suspended.
    * If the fallback is `null`, `undefined`, or omitted, then a Suspense
-   * component must be inserted elsewhere between the Provider and Consumer.
+   * component must be inserted elsewhere between the
+   * {@link ServiceProvider | Provider} and {@link ServiceConsumer | Consumer}.
    * @default null
    */
   fallback?: NonNullable<ReactNode> | null;
+  /**
+   * The reset function when {@link ServiceProviderProps.request | request} updates
+   */
+  reset?: Reset<TRequest>;
 }
 
 /** @ignore */

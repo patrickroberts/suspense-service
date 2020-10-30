@@ -1,27 +1,27 @@
 import React, { ReactNode } from 'react';
 import { ReactTestRenderer, act, create } from 'react-test-renderer';
 import mockRender from '../__fixtures__/mockRender';
-import withContext from '../__fixtures__/withContext';
-import { createContext } from '../Context';
+import withIdContext from '../__fixtures__/withIdContext';
+import { createIdContext } from '../IdContext';
 
-describe('Context', () => {
+describe('IdContext', () => {
   beforeEach(() => {
     mockRender.mockClear();
   });
 
-  let useContextSpy: jest.SpyInstance;
+  let useIdContextSpy: jest.SpyInstance;
 
   beforeAll(() => {
-    const actual = jest.requireActual<typeof import('../Context')>('../Context');
-    const actualUseContext = actual.useContext;
+    const actual = jest.requireActual<typeof import('../IdContext')>('../IdContext');
+    const actualUseIdContext = actual.useIdContext;
 
-    useContextSpy = jest.spyOn(actual, 'useContext').mockImplementation(
-      (context, id) => actualUseContext(context, id),
+    useIdContextSpy = jest.spyOn(actual, 'useIdContext').mockImplementation(
+      (context, id) => actualUseIdContext(context, id),
     );
   });
 
   beforeEach(() => {
-    useContextSpy.mockClear();
+    useIdContextSpy.mockClear();
   });
 
   let root: ReactTestRenderer;
@@ -32,7 +32,7 @@ describe('Context', () => {
 
   it('should pass default value to Consumer render callback', () => {
     const defaultValue = 1;
-    const UnderTest = createContext(defaultValue);
+    const UnderTest = createIdContext(defaultValue);
 
     act(() => {
       root = create(
@@ -50,17 +50,17 @@ describe('Context', () => {
     `);
   });
 
-  it('should pass default value to useContext hook', () => {
+  it('should pass default value to useIdContext hook', () => {
     const defaultValue = 1;
-    const UnderTest = createContext<ReactNode>(defaultValue);
-    const Consumer = withContext(UnderTest);
+    const UnderTest = createIdContext<ReactNode>(defaultValue);
+    const Consumer = withIdContext(UnderTest);
 
     act(() => {
       root = create(<Consumer />);
     });
 
-    expect(useContextSpy).toBeCalledWith(UnderTest, null);
-    expect(useContextSpy).toReturnWith(defaultValue);
+    expect(useIdContextSpy).toBeCalledWith(UnderTest, null);
+    expect(useIdContextSpy).toReturnWith(defaultValue);
     expect(root.toJSON()).toMatchInlineSnapshot(`
       <div>
         ${defaultValue}
@@ -70,7 +70,7 @@ describe('Context', () => {
 
   it('should pass value from Provider to Consumer render callback', () => {
     const value = 2;
-    const UnderTest = createContext(1);
+    const UnderTest = createIdContext(1);
 
     act(() => {
       root = create(
@@ -90,10 +90,10 @@ describe('Context', () => {
     `);
   });
 
-  it('should pass value from Provider to useContext hook', () => {
+  it('should pass value from Provider to useIdContext hook', () => {
     const value = 2;
-    const UnderTest = createContext<ReactNode>(1);
-    const Consumer = withContext(UnderTest);
+    const UnderTest = createIdContext<ReactNode>(1);
+    const Consumer = withIdContext(UnderTest);
 
     act(() => {
       root = create(
@@ -103,8 +103,8 @@ describe('Context', () => {
       );
     });
 
-    expect(useContextSpy).toBeCalledWith(UnderTest, null);
-    expect(useContextSpy).toReturnWith(value);
+    expect(useIdContextSpy).toBeCalledWith(UnderTest, null);
+    expect(useIdContextSpy).toReturnWith(value);
     expect(root.toJSON()).toMatchInlineSnapshot(`
       <div>
         ${value}
@@ -117,7 +117,7 @@ describe('Context', () => {
     const innerValue = 2;
     const outerId = 'a';
     const innerId = 'b';
-    const UnderTest = createContext(1);
+    const UnderTest = createIdContext(1);
 
     act(() => {
       root = create(
@@ -139,13 +139,13 @@ describe('Context', () => {
     `);
   });
 
-  it('should pass value from outer Provider to useContext hook', () => {
+  it('should pass value from outer Provider to useIdContext hook', () => {
     const outerValue = 3;
     const innerValue = 2;
     const outerId = 'a';
     const innerId = 'b';
-    const UnderTest = createContext<ReactNode>(1);
-    const Consumer = withContext(UnderTest);
+    const UnderTest = createIdContext<ReactNode>(1);
+    const Consumer = withIdContext(UnderTest);
 
     act(() => {
       root = create(
@@ -157,8 +157,8 @@ describe('Context', () => {
       );
     });
 
-    expect(useContextSpy).toBeCalledWith(UnderTest, outerId);
-    expect(useContextSpy).toReturnWith(outerValue);
+    expect(useIdContextSpy).toBeCalledWith(UnderTest, outerId);
+    expect(useIdContextSpy).toReturnWith(outerValue);
     expect(root.toJSON()).toMatchInlineSnapshot(`
       <div>
         ${outerValue}
