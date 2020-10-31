@@ -5,19 +5,105 @@
 [![types](https://img.shields.io/npm/types/suspense-service.svg)][npm]
 [![minzipped size](https://img.shields.io/bundlephobia/minzip/suspense-service.svg)][npm]
 
-Suspense integration library for React
+[Suspense] integration library for [React]
+
+## Why suspense-service?
+
+This library aims to provide a generic integration between promise-based data fetching and React's Suspense API, eliminating much of the boilerplate associated with state management of asynchronous data. Without Suspense, [data fetching often looks like this](https://reactjs.org/docs/concurrent-mode-suspense.html#approach-1-fetch-on-render-not-using-suspense):
+
+```jsx
+import React, { useState, useEffect } from 'react';
+
+const MyComponent = ({ endpoint }) => {
+  const [data, setData] = useState();
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      const response = await fetch(`/api/v1${endpoint}`);
+      setData(await response.json());
+      setLoading(false);
+    };
+
+    fetchData();
+  }, [endpoint]);
+
+  if (loading) {
+    return (
+      <>Loading data...</>
+    );
+  }
+
+  return (
+    <pre>
+      {JSON.stringify(data, null, 2)}
+    </pre>
+  );
+};
+
+const App = () => (
+  <MyComponent request="/foo/bar" />
+);
+```
+
+This works well for trivial cases, but the amount of effort it takes to do anything beyond the basics becomes significant. Here are a few problems this approach fails to address well.
+
+### What if we want to provide the response to one or more deeply nested components?
+
+We'd need to pass the response down through prop drilling, or by creating a [Context] to provide the response. Both of these solutions would take a lot of work to orchestrate, especially if we want to avoid performance penalties from unnecessarily re-rendering intermediate components.
+
+`suspense-service` already acts as a context provider, so the response can be consumed from any component.
+
+### What if we want to memoize expensive computations based on the response?
+
+We'd need to create a nested component to memoize the expensive computation in its render function, and pass the response as a prop. Otherwise we'd be forced to write the `useMemo()` before `if (loading) return (...);` in order to follow the [Rules of Hooks]. This would require the factory function to first check if the `response` is ready and then conditionally perform the computation.
+
+With `suspense-service`, we can simply write the `useMemo()` after the `useService()` hook, and perform the computation unconditionally, because the response will always be available:
+
+```jsx
+import React, { useMemo } from 'react';
+import { createService, useService } from 'suspense-service';
+
+const myHandler = async (endpoint) => {
+  const response = await fetch(`/api/v1${endpoint}`);
+  return response.json();
+};
+
+const MyService = createService(myHandler);
+
+const MyComponent = () => {
+  const data = useService(MyService);
+
+  return useMemo(() => (
+    // some expensive computation
+    <pre>
+      {JSON.stringify(data, null, 2)}
+    </pre>
+  ), [data]);
+};
+
+const App = () => (
+  <MyService.Provider
+    request="/foo/bar"
+    fallback={<>Loading data...</>}
+  >
+    <MyComponent />
+  </MyService.Provider>
+);
+```
 
 ## Installing
 
-Available on [npm]
+Package available on [npm] or [Yarn]
 
 ```bash
 npm i suspense-service
+yarn add suspense-service
 ```
 
 ## Documentation
 
-Available on [GitHub Pages](https://patrickroberts.github.io/suspense-service/)
+API Reference available on [GitHub Pages]
 
 ## Usage
 
@@ -33,7 +119,7 @@ import { createService, useService } from 'suspense-service';
  * It may accept a parameter of any type
  * but it must return a promise or thenable
  */
-const myHandler = async endpoint => {
+const myHandler = async (endpoint) => {
   const response = await fetch(`/api/v1${endpoint}`);
   return response.json();
 };
@@ -47,18 +133,18 @@ const MyService = createService(myHandler);
 const MyComponent = () => {
   // Consume MyService synchronously or suspend
   // MyComponent until the response is available
-  const value = useService(MyService);
+  const data = useService(MyService);
 
   return (
     <pre>
-      {JSON.stringify(value, null, 2)}
+      {JSON.stringify(data, null, 2)}
     </pre>
   );
 };
 
 const App = () => (
   // Fetch /api/v1/foo/bar
-  <MyService.Provider value="/foo/bar">
+  <MyService.Provider request="/foo/bar">
     {/* Render fallback while MyComponent is suspended */}
     <Suspense fallback={<>Loading data...</>}>
       <MyComponent />
@@ -72,9 +158,9 @@ const App = () => (
 <summary>Render Callback</summary>
 
 ```jsx
-const render = value => (
+const render = data => (
   <pre>
-    {JSON.stringify(value, null, 2)}
+    {JSON.stringify(data, null, 2)}
   </pre>
 );
 
@@ -92,7 +178,7 @@ const App = () => (
   // Passing the optional fallback prop
   // wraps a Suspense around the children
   <MyService.Provider
-    value="/foo/bar"
+    request="/foo/bar"
     fallback={<>Loading data...</>}
   >
     <MyComponent />
@@ -123,8 +209,8 @@ const MyComponent = () => {
 const App = () => (
   // Identify each Provider with a key
   // by using the optional id prop
-  <MyService.Provider value="/a" id="a">
-    <MyService.Provider value="/b" id="b">
+  <MyService.Provider request="/a" id="a">
+    <MyService.Provider request="/b" id="b">
       <Suspense fallback={<>Loading data...</>}>
         <MyComponent />
       </Suspense>
@@ -134,4 +220,10 @@ const App = () => (
 ```
 </details>
 
+[Suspense]: https://reactjs.org/docs/concurrent-mode-suspense.html#what-is-suspense-exactly
+[React]: https://reactjs.org
+[Context]: https://reactjs.org/docs/context.html
+[Rules of Hooks]: https://reactjs.org/docs/hooks-rules.html
 [npm]: https://www.npmjs.com/package/suspense-service
+[Yarn]: https://yarnpkg.com/package/suspense-service
+[GitHub Pages]: https://patrickroberts.github.io/suspense-service

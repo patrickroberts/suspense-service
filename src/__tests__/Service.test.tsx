@@ -212,6 +212,58 @@ describe('Service', () => {
     });
   });
 
+  it('should not call handler multiple times with same request', () => {
+    const request = 0;
+    const mockHandler = jest.fn();
+    const UnderTest = createService<number, never>(mockHandler);
+
+    act(() => {
+      root = create(
+        <UnderTest.Provider request={request} />,
+      );
+    });
+
+    expect(mockHandler).toBeCalledTimes(1);
+    expect(mockHandler).toBeCalledWith(request, null);
+
+    mockHandler.mockClear();
+
+    act(() => {
+      root.update(
+        <UnderTest.Provider request={request} />,
+      );
+    });
+
+    expect(mockHandler).not.toBeCalled();
+  });
+
+  it('should call handler multiple times with different requests', () => {
+    let request = 0;
+    const mockHandler = jest.fn();
+    const UnderTest = createService<number, never>(mockHandler);
+
+    act(() => {
+      root = create(
+        <UnderTest.Provider request={request} />,
+      );
+    });
+
+    expect(mockHandler).toBeCalledTimes(1);
+    expect(mockHandler).toBeCalledWith(request, null);
+
+    request = 1;
+    mockHandler.mockClear();
+
+    act(() => {
+      root.update(
+        <UnderTest.Provider request={request} />,
+      );
+    });
+
+    expect(mockHandler).toBeCalledTimes(1);
+    expect(mockHandler).toBeCalledWith(request, null);
+  });
+
   it('should pass response from Provider to Consumer render callback', async () => {
     const request = 1;
     const response = 'one';
