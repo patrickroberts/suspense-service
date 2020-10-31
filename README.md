@@ -5,6 +5,8 @@
 [![types](https://img.shields.io/npm/types/suspense-service.svg)][npm]
 [![minzipped size](https://img.shields.io/bundlephobia/minzip/suspense-service.svg)][npm]
 
+[![npm](https://nodei.co/npm/suspense-service.png?compact=true)][npm]
+
 [Suspense] integration library for [React]
 
 ## Why suspense-service?
@@ -14,19 +16,19 @@ This library aims to provide a generic integration between promise-based data fe
 ```jsx
 import React, { useState, useEffect } from 'react';
 
-const MyComponent = ({ endpoint }) => {
+const MyComponent = ({ request }) => {
   const [data, setData] = useState();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchData = async (endpoint) => {
       const response = await fetch(`/api/v1${endpoint}`);
       setData(await response.json());
       setLoading(false);
     };
 
-    fetchData();
-  }, [endpoint]);
+    fetchData(request);
+  }, [request]);
 
   if (loading) {
     return (
