@@ -107,6 +107,10 @@ yarn add suspense-service
 
 API Reference available on [GitHub Pages]
 
+## Code Coverage
+
+Also available on [GitHub Pages](https://patrickroberts.github.io/suspense-service/coverage/)
+
 ## Usage
 
 <details open>
