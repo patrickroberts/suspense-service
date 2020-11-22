@@ -1,11 +1,12 @@
 # suspense-service
 
-[![build](https://github.com/patrickroberts/suspense-service/workflows/build/badge.svg)](https://github.com/patrickroberts/suspense-service/actions?query=workflow:build)
-[![license](https://img.shields.io/github/license/patrickroberts/suspense-service.svg)](https://github.com/patrickroberts/suspense-service/blob/master/LICENSE)
-[![types](https://img.shields.io/npm/types/suspense-service.svg)][npm]
-[![minzipped size](https://img.shields.io/bundlephobia/minzip/suspense-service.svg)][npm]
-
-[![npm](https://nodei.co/npm/suspense-service.png?compact=true)][npm]
+[![build](https://badgen.net/github/checks/patrickroberts/suspense-service?icon=github&label=build)](https://github.com/patrickroberts/suspense-service/actions)
+[![coverage](https://badgen.net/codecov/c/github/patrickroberts/suspense-service?icon=codecov&label=coverage)](https://codecov.io/gh/patrickroberts/suspense-service)
+[![license](https://badgen.net/github/license/patrickroberts/suspense-service)](https://github.com/patrickroberts/suspense-service/blob/master/LICENSE)
+[![minzipped size](https://badgen.net/bundlephobia/minzip/suspense-service)][npm]
+[![tree shaking](https://badgen.net/bundlephobia/tree-shaking/suspense-service)][npm]
+[![types](https://badgen.net/npm/types/suspense-service?icon=typescript)][npm]
+[![version](https://badgen.net/npm/v/suspense-service?color=blue&icon=npm&label=version)][npm]
 
 [Suspense] integration library for [React]
 

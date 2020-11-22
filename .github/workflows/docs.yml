@@ -19,9 +19,9 @@ jobs:
         run: |
           npm ci
           npm run clean
-          npm run test -- --ci --coverage
+          npm run test -- --ci
+          bash <(curl -s https://codecov.io/bash)
           npm run docs
-          cp -r coverage/lcov-report docs/coverage
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Deploy
