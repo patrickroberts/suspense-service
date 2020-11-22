@@ -110,7 +110,7 @@ API Reference available on [GitHub Pages]
 
 ## Code Coverage
 
-Also available on [GitHub Pages](https://patrickroberts.github.io/suspense-service/coverage/)
+Available on [Codecov](https://codecov.io/gh/patrickroberts/suspense-service)
 
 ## Usage
 
