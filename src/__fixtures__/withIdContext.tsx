@@ -4,10 +4,18 @@ import IdContext, { useIdContext } from '../IdContext';
 
 const withIdContext: (
   context: IdContext<ReactNode>
-) => ComponentType<{ id?: Id }> = (context) => ({ id = null }) => (
-  <div>
-    {useIdContext(context, id)}
-  </div>
-);
+) => ComponentType<{ id?: Id }> = (context) => {
+  const Component = ({ id }: { id?: Id }) => (
+    <div>
+      {useIdContext(context, id)}
+    </div>
+  );
+
+  Component.defaultProps = {
+    id: null,
+  };
+
+  return Component;
+};
 
 export default withIdContext;
