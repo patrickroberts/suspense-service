@@ -28,5 +28,6 @@ export function createStateContextProvider<T>(
     Object.is(prev.value, next.value)
     && Object.is(prev.id, next.id)
     && Object.is(prev.children, next.children)
+    && Object.is(prev.reset, next.reset)
   ));
 }

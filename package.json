@@ -1,6 +1,6 @@
 {
   "name": "suspense-service",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "Suspense integration library for React",
   "repository": "github:patrickroberts/suspense-service",
   "main": "dst/cjs/suspense-service.js",
