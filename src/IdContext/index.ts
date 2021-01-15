@@ -38,7 +38,7 @@ export function createIdContext<T>(defaultValue: T): IdContext<T> {
 }
 
 /**
- * Consumes a value from a {@link IdContextProvider}
+ * Consumes a value from an {@link IdContextProvider}
  * @param context the {@link IdContext} to use
  * @param id the {@link IdContextProviderProps.id | IdContextProvider id} to use
  */

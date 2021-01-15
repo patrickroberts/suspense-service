@@ -5,4 +5,8 @@ export { default as IdContext, createIdContext, useIdContext } from './IdContext
 export { default as ServiceConsumer, ServiceConsumerProps } from './Service/Consumer';
 export { default as ServiceProvider, ServiceProviderProps } from './Service/Provider';
 export { default as Service, Handler, createService, useService, useServiceState } from './Service';
+export { default as State } from './StateContext/State';
+export { default as StateContextConsumer, StateContextConsumerProps } from './StateContext/Consumer';
+export { default as StateContextProvider, StateContextProviderProps } from './StateContext/Provider';
+export { default as StateContext, createStateContext, useStateContext } from './StateContext';
 export { default as Reset } from './State/Reset';
