@@ -1,4 +1,4 @@
-import React, { ComponentType, Dispatch, SetStateAction, Suspense, isValidElement, memo, useMemo } from 'react';
+import React, { ComponentType, Dispatch, SetStateAction, Suspense, memo, useMemo } from 'react';
 import Id from '../../IdContext/Id';
 import IdContext from '../../IdContext';
 import useResetState from '../../State/useResetState';
@@ -18,10 +18,12 @@ export function createServiceProvider<TRequest, TResponse>(
   const ResourceProvider: ServiceProvider<TRequest> = ({
     request, id, children, fallback, reset,
   }) => {
-    const [state, setState] = useResetState(request, reset);
+    const stateAndSetState = useResetState(request, reset);
+    const state = stateAndSetState[0];
+    const setState = stateAndSetState[1];
     const resource = useHandler(state, id);
     const element = useMemo(() => (
-      isValidElement(fallback)
+      fallback != null
         ? <Suspense fallback={fallback}>{children}</Suspense>
         : children
     ), [children, fallback]);

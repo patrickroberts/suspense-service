@@ -15,8 +15,10 @@ export function createServiceConsumer<TRequest, TResponse>(
 ): ServiceConsumer<TRequest, TResponse> {
   const ResourceConsumer: ServiceConsumer<TRequest, TResponse> = ({ id, children }) => {
     const render = useCallback((
-      [resource, setState]: [Resource<TResponse>, Dispatch<SetStateAction<TRequest>>],
+      resourceAndSetState: [Resource<TResponse>, Dispatch<SetStateAction<TRequest>>],
     ) => {
+      const resource = resourceAndSetState[0];
+      const setState = resourceAndSetState[1];
       const response = resource();
 
       return children(response, setState);

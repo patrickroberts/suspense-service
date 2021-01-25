@@ -14,7 +14,12 @@ export function createStateContextConsumer<T>(
 ): StateContextConsumer<T> {
   const StateConsumer: StateContextConsumer<T> = ({ id, children }) => {
     const render = useCallback(
-      ([state, setState]: State<T>) => children(state, setState),
+      (stateAndSetState: State<T>) => {
+        const state = stateAndSetState[0];
+        const setState = stateAndSetState[1];
+
+        return children(state, setState);
+      },
       [children],
     );
 
