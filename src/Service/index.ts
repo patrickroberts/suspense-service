@@ -35,7 +35,7 @@ export function createService<TRequest, TResponse>(
   handler: Handler<TRequest, TResponse>,
 ): Service<TRequest, TResponse> {
   const ResourceContext = createIdContext<[
-    Resource<TResponse>, Dispatch<SetStateAction<TRequest>>
+    Resource<TResponse>, Dispatch<SetStateAction<TRequest>>,
   ]>(defaultValue);
 
   return {
@@ -54,11 +54,8 @@ export function useServiceState<TRequest, TResponse>(
   service: Service<TRequest, TResponse>, id: Id = null,
 ): [TResponse, Dispatch<SetStateAction<TRequest>>] {
   const resourceAndSetState = useIdContext(service[kResource], id);
-  const resource = resourceAndSetState[0];
-  const setState = resourceAndSetState[1];
-  const response = resource();
 
-  return [response, setState];
+  return [resourceAndSetState[0](), resourceAndSetState[1]];
 }
 
 /**

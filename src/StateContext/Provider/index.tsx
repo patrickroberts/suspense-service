@@ -17,9 +17,10 @@ export function createStateContextProvider<T>(
   const StateProvider: StateContextProvider<T> = ({ value, id, children, reset }) => {
     const state = useResetState(value, reset);
 
-    return useMemo(() => (
-      <Provider value={state} id={id}>{children}</Provider>
-    ), [state, id, children]);
+    return useMemo(
+      () => <Provider value={state} id={id}>{children}</Provider>,
+      [state, id, children],
+    );
   };
 
   StateProvider.defaultProps = defaultProps;

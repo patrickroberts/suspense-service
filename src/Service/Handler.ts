@@ -31,13 +31,10 @@ export function createUseHandler<TRequest, TResponse>(
 
       state = { promise, status: Status.Pending };
       return () => {
-        const { status } = state;
-
         switch (state.status) {
           case Status.Pending: throw state.promise;
           case Status.Fulfilled: return state.value;
-          case Status.Rejected: throw state.reason;
-          default: throw new Error(`Unexpected status ${status}`);
+          default: throw state.reason;
         }
       };
     }, [request, id]);

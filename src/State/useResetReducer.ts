@@ -20,8 +20,12 @@ export default function useResetReducer<R extends Reducer<any, any>>(
     initialState,
     state: initialState,
     dispatch: (action: ReducerAction<R>) => {
-      current.state = current.reducer(current.state, action);
-      forceUpdate();
+      const nextState = current.reducer(current.state, action);
+
+      if (!Object.is(current.state, nextState)) {
+        current.state = nextState;
+        forceUpdate();
+      }
     },
   });
 

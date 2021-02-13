@@ -14,13 +14,15 @@ export function createIdContextProvider<T>(
   const { Provider } = EnvironmentContext;
   const EnvironmentProvider: IdContextProvider<T> = ({ value, id, children }) => {
     const prev = useContext(EnvironmentContext);
-    const next = useMemo(() => (
-      wrap(prev, value, id)
-    ), [value, id, prev]);
+    const next = useMemo(
+      () => wrap(prev, value, id),
+      [value, id, prev],
+    );
 
-    return useMemo(() => (
-      <Provider value={next}>{children}</Provider>
-    ), [children, next]);
+    return useMemo(
+      () => <Provider value={next}>{children}</Provider>,
+      [children, next],
+    );
   };
 
   EnvironmentProvider.defaultProps = defaultProps;

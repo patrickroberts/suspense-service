@@ -16,17 +16,13 @@ export function createServiceConsumer<TRequest, TResponse>(
   const ResourceConsumer: ServiceConsumer<TRequest, TResponse> = ({ id, children }) => {
     const render = useCallback((
       resourceAndSetState: [Resource<TResponse>, Dispatch<SetStateAction<TRequest>>],
-    ) => {
-      const resource = resourceAndSetState[0];
-      const setState = resourceAndSetState[1];
-      const response = resource();
+    ) => children(resourceAndSetState[0](), resourceAndSetState[1]),
+    [children]);
 
-      return children(response, setState);
-    }, [children]);
-
-    return useMemo(() => (
-      <Consumer id={id}>{render}</Consumer>
-    ), [id, render]);
+    return useMemo(
+      () => <Consumer id={id}>{render}</Consumer>,
+      [id, render],
+    );
   };
 
   ResourceConsumer.defaultProps = defaultProps;

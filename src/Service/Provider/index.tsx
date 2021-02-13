@@ -19,18 +19,17 @@ export function createServiceProvider<TRequest, TResponse>(
     request, id, children, fallback, reset,
   }) => {
     const stateAndSetState = useResetState(request, reset);
-    const state = stateAndSetState[0];
+    const resource = useHandler(stateAndSetState[0], id);
     const setState = stateAndSetState[1];
-    const resource = useHandler(state, id);
-    const element = useMemo(() => (
-      fallback != null
-        ? <Suspense fallback={fallback}>{children}</Suspense>
-        : children
-    ), [children, fallback]);
+    const element = useMemo(
+      () => (fallback == null ? children : <Suspense fallback={fallback}>{children}</Suspense>),
+      [children, fallback],
+    );
 
-    return useMemo(() => (
-      <Provider value={[resource, setState]} id={id}>{element}</Provider>
-    ), [resource, setState, id, element]);
+    return useMemo(
+      () => <Provider value={[resource, setState]} id={id}>{element}</Provider>,
+      [resource, setState, id, element],
+    );
   };
 
   ResourceProvider.defaultProps = defaultProps;

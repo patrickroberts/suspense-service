@@ -20,6 +20,8 @@ export default interface StateContext<T> {
   [kState]: IdContext<State<T>>;
 }
 
+const defaultDispatch = () => undefined;
+
 /**
  * Creates a State Context for providing a stateful value and a function to update it.
  * @param defaultValue the value consumed if no {@link StateContextProvider} is in scope and the
@@ -27,7 +29,7 @@ export default interface StateContext<T> {
  */
 export function createStateContext<T>(defaultValue: T): StateContext<T> {
   const StateContext = createIdContext<State<T>>(
-    [defaultValue, () => undefined],
+    [defaultValue, defaultDispatch],
   );
 
   return {

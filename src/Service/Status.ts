@@ -2,7 +2,7 @@
 const enum Status {
   Pending,
   Fulfilled,
-  Rejected
+  Rejected,
 }
 
 export default Status;
