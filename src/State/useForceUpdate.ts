@@ -1,6 +1,10 @@
 import { DispatchWithoutAction, useReducer } from 'react';
 
+const initialValue = {};
+
 /** @ignore */
 export default function useForceUpdate(): DispatchWithoutAction {
-  return useReducer(() => ({}), {})[1];
+  const { 1: forceUpdate } = useReducer(() => ({}), initialValue);
+
+  return forceUpdate;
 }

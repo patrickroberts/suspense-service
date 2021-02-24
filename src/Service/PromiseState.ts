@@ -1,21 +1,36 @@
-import Status from './Status';
+/** @ignore */
+const enum PromiseStateProperty {
+  Status,
+  Result,
+}
+
+export { PromiseStateProperty };
+
+/** @ignore */
+const enum StatusType {
+  Pending,
+  Fulfilled,
+  Rejected,
+}
+
+export { StatusType };
 
 /** @ignore */
 interface PromiseStatePending<TResponse> {
-  promise: Promise<TResponse>;
-  status: Status.Pending;
+  [PromiseStateProperty.Status]: StatusType.Pending;
+  [PromiseStateProperty.Result]: Promise<TResponse>;
 }
 
 /** @ignore */
 interface PromiseStateFulfilled<TResponse> {
-  value: TResponse;
-  status: Status.Fulfilled;
+  [PromiseStateProperty.Status]: StatusType.Fulfilled;
+  [PromiseStateProperty.Result]: TResponse;
 }
 
 /** @ignore */
 interface PromiseStateRejected {
-  reason: any;
-  status: Status.Rejected;
+  [PromiseStateProperty.Status]: StatusType.Rejected;
+  [PromiseStateProperty.Result]: any;
 }
 
 /** @ignore */

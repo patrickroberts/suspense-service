@@ -25,8 +25,5 @@ export function createStateContextConsumer<T>(
 
   StateConsumer.defaultProps = defaultProps;
 
-  return memo(StateConsumer, (prev, next) => (
-    Object.is(prev.id, next.id)
-    && Object.is(prev.children, next.children)
-  ));
+  return memo(StateConsumer);
 }

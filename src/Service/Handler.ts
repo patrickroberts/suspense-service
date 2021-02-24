@@ -1,8 +1,7 @@
 import Id from '../IdContext/Id';
 import useSync from '../State/useSync';
-import PromiseState from './PromiseState';
+import PromiseState, { PromiseStateProperty, StatusType } from './PromiseState';
 import Resource from './Resource';
-import Status from './Status';
 
 /**
  * The type of asynchronous function for fetching data
@@ -15,27 +14,27 @@ export default Handler;
 export function createUseHandler<TRequest, TResponse>(
   handler: Handler<TRequest, TResponse>,
 ) {
-  return function useHandler(request: TRequest, id: Id = null): Resource<TResponse> {
+  return function useHandler(request: TRequest, id: Id): Resource<TResponse> {
     return useSync(() => {
       let state: PromiseState<TResponse>;
       const promise = Promise.resolve(handler(request, id)).then(
         (value) => {
-          state = { value, status: Status.Fulfilled };
+          state = [StatusType.Fulfilled, value];
           return value;
         },
         (reason) => {
-          state = { reason, status: Status.Rejected };
+          state = [StatusType.Rejected, reason];
           throw reason;
         },
       );
 
-      state = { promise, status: Status.Pending };
+      state = [StatusType.Pending, promise];
       return () => {
-        switch (state.status) {
-          case Status.Pending: throw state.promise;
-          case Status.Fulfilled: return state.value;
-          default: throw state.reason;
+        if (state[PromiseStateProperty.Status] !== StatusType.Fulfilled) {
+          throw state[PromiseStateProperty.Result];
         }
+
+        return state[PromiseStateProperty.Result];
       };
     }, [request, id]);
   };

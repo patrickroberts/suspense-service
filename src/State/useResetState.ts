@@ -1,9 +1,8 @@
 import { Dispatch, SetStateAction } from 'react';
-import Reset, { defaultReset } from './Reset';
+import Reset from './Reset';
 import useResetReducer from './useResetReducer';
 
 /** @ignore */
-// eslint-disable-next-line no-undef
 function isFunction<S>(setStateAction: SetStateAction<S>): setStateAction is (prevState: S) => S {
   return typeof setStateAction === 'function';
 }
@@ -17,7 +16,7 @@ function isFunction<S>(setStateAction: SetStateAction<S>): setStateAction is (pr
  * @param reset the reset function when initialState updates
  */
 export default function useResetState<S>(
-  initialState: S, reset: Reset<S> = defaultReset,
+  initialState: S, reset?: Reset<S>,
 ): [S, Dispatch<SetStateAction<S>>] {
   return useResetReducer((prevState: S, setStateAction: SetStateAction<S>) => (
     isFunction(setStateAction) ? setStateAction(prevState) : setStateAction

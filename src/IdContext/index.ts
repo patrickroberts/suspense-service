@@ -42,8 +42,8 @@ export function createIdContext<T>(defaultValue: T): IdContext<T> {
  * @param context the {@link IdContext} to use
  * @param id the {@link IdContextProviderProps.id | IdContextProvider id} to use
  */
-export function useIdContext<T>(context: IdContext<T>, id: Id = null): T {
+export function useIdContext<T>(context: IdContext<T>, id?: Id): T {
   const env = useContext(context[kEnvironment]);
 
-  return unwrap(env, id);
+  return unwrap(env, id != null ? id : null);
 }

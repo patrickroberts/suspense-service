@@ -13,14 +13,13 @@ export { ServiceProviderProps };
 /** @ignore */
 export function createServiceProvider<TRequest, TResponse>(
   { Provider }: IdContext<[Resource<TResponse>, Dispatch<SetStateAction<TRequest>>]>,
-  useHandler: (request: TRequest, id?: Id) => Resource<TResponse>,
+  useHandler: (request: TRequest, id: Id) => Resource<TResponse>,
 ): ServiceProvider<TRequest> {
   const ResourceProvider: ServiceProvider<TRequest> = ({
     request, id, children, fallback, reset,
   }) => {
-    const stateAndSetState = useResetState(request, reset);
-    const resource = useHandler(stateAndSetState[0], id);
-    const setState = stateAndSetState[1];
+    const { 0: state, 1: setState } = useResetState(request, reset);
+    const resource = useHandler(state, id!);
     const element = useMemo(
       () => (fallback == null ? children : <Suspense fallback={fallback}>{children}</Suspense>),
       [children, fallback],
@@ -34,11 +33,5 @@ export function createServiceProvider<TRequest, TResponse>(
 
   ResourceProvider.defaultProps = defaultProps;
 
-  return memo(ResourceProvider, (prev, next) => (
-    Object.is(prev.request, next.request)
-    && Object.is(prev.id, next.id)
-    && Object.is(prev.children, next.children)
-    && Object.is(prev.fallback, next.fallback)
-    && Object.is(prev.reset, next.reset)
-  ));
+  return memo(ResourceProvider);
 }

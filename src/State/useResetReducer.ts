@@ -1,5 +1,6 @@
 import { Dispatch, Reducer, ReducerAction, ReducerState, useRef } from 'react';
-import Reset, { defaultReset } from './Reset';
+import Reset from './Reset';
+import ResetReducer, { ResetReducerProperty } from './ResetReducer';
 import useForceUpdate from './useForceUpdate';
 
 /**
@@ -12,29 +13,33 @@ import useForceUpdate from './useForceUpdate';
  * @param reset the reset function when initialState updates
  */
 export default function useResetReducer<R extends Reducer<any, any>>(
-  reducer: R, initialState: ReducerState<R>, reset: Reset<ReducerState<R>> = defaultReset,
+  reducer: R, initialState: ReducerState<R>, reset?: Reset<ReducerState<R>>,
 ): [ReducerState<R>, Dispatch<ReducerAction<R>>] {
   const forceUpdate = useForceUpdate();
-  const { current } = useRef({
+  const { current } = useRef<ResetReducer<R>>([
     reducer,
     initialState,
-    state: initialState,
-    dispatch: (action: ReducerAction<R>) => {
-      const nextState = current.reducer(current.state, action);
+    initialState,
+    (action: ReducerAction<R>) => {
+      const nextState = current[ResetReducerProperty.Reducer](
+        current[ResetReducerProperty.State], action,
+      );
 
-      if (!Object.is(current.state, nextState)) {
-        current.state = nextState;
+      if (!Object.is(current[ResetReducerProperty.State], nextState)) {
+        current[ResetReducerProperty.State] = nextState;
         forceUpdate();
       }
     },
-  });
+  ]);
 
-  current.reducer = reducer;
+  current[ResetReducerProperty.Reducer] = reducer;
 
-  if (!Object.is(current.initialState, initialState)) {
-    current.initialState = initialState;
-    current.state = reset(current.state, initialState);
+  if (!Object.is(current[ResetReducerProperty.InitialState], initialState)) {
+    current[ResetReducerProperty.InitialState] = initialState;
+    current[ResetReducerProperty.State] = reset
+      ? reset(current[ResetReducerProperty.State], initialState)
+      : initialState;
   }
 
-  return [current.state, current.dispatch];
+  return [current[ResetReducerProperty.State], current[ResetReducerProperty.Dispatch]];
 }

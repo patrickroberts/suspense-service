@@ -1,6 +1,7 @@
 import { DependencyList, useRef } from 'react';
+import Sync, { SyncProperty } from './Sync';
 
-const intialValue: [any, DependencyList | undefined] = [undefined, undefined];
+const initialValue: Sync<any> = {};
 
 /** @ignore */
 function dependencyListIs(a: DependencyList | undefined, b: DependencyList | undefined): boolean {
@@ -21,11 +22,11 @@ function dependencyListIs(a: DependencyList | undefined, b: DependencyList | und
  * @param deps The dependencies of the computation
  */
 export default function useSync<T>(factory: () => T, deps: DependencyList | undefined): T {
-  const ref = useRef<[T, DependencyList | undefined]>(intialValue);
+  const ref = useRef<Sync<T>>(initialValue);
 
-  if (!dependencyListIs(ref.current[1], deps)) {
+  if (!dependencyListIs(ref.current[SyncProperty.Deps], deps)) {
     ref.current = [factory(), deps];
   }
 
-  return ref.current[0];
+  return ref.current[SyncProperty.State]!;
 }

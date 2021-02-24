@@ -13,7 +13,7 @@ export function createIdContextConsumer<T>(
 ): IdContextConsumer<T> {
   const EnvironmentConsumer: IdContextConsumer<T> = ({ id, children }) => {
     const render = useCallback(
-      (env: Environment<T>) => children(unwrap(env, id)),
+      (env: Environment<T>) => children(unwrap(env, id!)),
       [id, children],
     );
 
@@ -25,8 +25,5 @@ export function createIdContextConsumer<T>(
 
   EnvironmentConsumer.defaultProps = defaultProps;
 
-  return memo(EnvironmentConsumer, (prev, next) => (
-    Object.is(prev.id, next.id)
-    && Object.is(prev.children, next.children)
-  ));
+  return memo(EnvironmentConsumer);
 }

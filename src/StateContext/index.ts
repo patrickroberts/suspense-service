@@ -44,6 +44,6 @@ export function createStateContext<T>(defaultValue: T): StateContext<T> {
  * @param context the {@link StateContext} to use
  * @param id the {@link StateContextProviderProps.id | StateContextProvider id} to use
  */
-export function useStateContext<T>(context: StateContext<T>, id: Id = null): State<T> {
+export function useStateContext<T>(context: StateContext<T>, id?: Id): State<T> {
   return useIdContext(context[kState], id);
 }

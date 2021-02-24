@@ -10,9 +10,41 @@
 
 [Suspense] integration library for [React]
 
+```jsx
+import React, { Suspense } from 'react';
+import { createService, useService } from 'suspense-service';
+
+const myHandler = async (request) => {
+  const response = await fetch(request);
+  return response.json();
+};
+
+const MyService = createService(myHandler);
+
+const MyComponent = () => {
+  const data = useService(MyService);
+
+  return (
+    <pre>
+      {JSON.stringify(data, null, 2)}
+    </pre>
+  );
+};
+
+const App = () => (
+  <MyService.Provider request="https://swapi.dev/api/planets/2/">
+    <Suspense fallback="Loading data...">
+      <MyComponent />
+    </Suspense>
+  </MyService.Provider>
+);
+```
+
+[![Edit suspense-service-demo](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/suspense-service-demo-sm9m5)
+
 ## Why suspense-service?
 
-This library aims to provide a generic integration between promise-based data fetching and React's Suspense API, eliminating much of the boilerplate associated with state management of asynchronous data. Without Suspense, [data fetching often looks like this](https://reactjs.org/docs/concurrent-mode-suspense.html#approach-1-fetch-on-render-not-using-suspense):
+This library aims to provide a generic integration between promise-based data fetching and React's Suspense API, eliminating much of the boilerplate associated with state management of asynchronous data. _Without Suspense, [data fetching often looks like this](https://reactjs.org/docs/concurrent-mode-suspense.html#approach-1-fetch-on-render-not-using-suspense)_:
 
 ```jsx
 import React, { useState, useEffect } from 'react';
@@ -22,8 +54,8 @@ const MyComponent = ({ request }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchData = async (endpoint) => {
-      const response = await fetch(`/api/v1${endpoint}`);
+    const fetchData = async (request) => {
+      const response = await fetch(request);
       setData(await response.json());
       setLoading(false);
     };
@@ -32,9 +64,7 @@ const MyComponent = ({ request }) => {
   }, [request]);
 
   if (loading) {
-    return (
-      <>Loading data...</>
-    );
+    return 'Loading data...';
   }
 
   return (
@@ -45,55 +75,58 @@ const MyComponent = ({ request }) => {
 };
 
 const App = () => (
-  <MyComponent request="/foo/bar" />
+  <MyComponent request="https://swapi.dev/api/planets/2/" />
 );
 ```
 
-This works well for trivial cases, but the amount of effort it takes to do anything beyond the basics becomes significant. Here are a few problems this approach fails to address well.
+This may work well for trivial cases, but the amount of effort (and boilerplate) required tends to increase significantly for anything more advanced. Here are a few problems this approach fails to address well.
 
-### What if we want to provide the response to one or more deeply nested components?
+<details>
+<summary>Avoiding race conditions caused by out-of-order responses</summary>
 
-We'd need to pass the response down through prop drilling, or by creating a [Context] to provide the response. Both of these solutions would take a lot of work to orchestrate, especially if we want to avoid performance penalties from unnecessarily re-rendering intermediate components.
+Accomplishing this with the approach above would require additional logic to index each of the requests and compose a promise chain to ensure responses from older requests can't overwrite the state when one from a more recent request is already available.
 
-`suspense-service` already acts as a context provider, so the response can be consumed from any component.
+[Concurrent Mode was designed to solve this type of race condition using Suspense](https://reactjs.org/docs/concurrent-mode-suspense.html#suspense-and-race-conditions).
+</details>
 
-### What if we want to memoize expensive computations based on the response?
+<details>
+<summary>Providing the response to one or more deeply nested components</summary>
 
-We'd need to create a nested component to memoize the expensive computation in its render function, and pass the response as a prop. Otherwise we'd be forced to write the `useMemo()` before `if (loading) return (...);` in order to follow the [Rules of Hooks]. This would require the factory function to first check if the `response` is ready and then conditionally perform the computation.
+This would typically be done by passing the response down through props, or by creating a [Context] to provide the response. Both of these solutions would require a lot of effort, especially if you want to avoid re-rendering the intermediate components that aren't even using the response.
 
-With `suspense-service`, we can simply write the `useMemo()` after the `useService()` hook, and perform the computation unconditionally, because the response will always be available:
+`suspense-service` already creates an optimized context provider for you which allows the response to be consumed from as many nested components as you want without making multiple requests.
+</details>
+
+<details>
+<summary>Memoizing expensive computations based on the response</summary>
+
+Expanding on the approach above, you would need to create a nested component in order to memoize any expensive computations, and pass the response to it as a prop. Otherwise you'd need to be careful and write any `useMemo()` before `if (loading) return (...);` in order to follow the [Rules of Hooks]. This means that the expensive computation would first need to check if the `data` is ready each time and provide a default value if not.
+
+With `suspense-service`, you can simply pass `data` from `useService()` to `useMemo()`, and perform the computation unconditionally, because the response is available synchronously:
 
 ```jsx
-import React, { useMemo } from 'react';
-import { createService, useService } from 'suspense-service';
-
-const myHandler = async (endpoint) => {
-  const response = await fetch(`/api/v1${endpoint}`);
-  return response.json();
-};
-
-const MyService = createService(myHandler);
-
 const MyComponent = () => {
   const data = useService(MyService);
+  // some expensive computation
+  const formatted = useMemo(() => JSON.stringify(data, null, 2), [data]);
 
-  return useMemo(() => (
-    // some expensive computation
+  return (
     <pre>
-      {JSON.stringify(data, null, 2)}
+      {formatted}
     </pre>
-  ), [data]);
+  );
 };
-
-const App = () => (
-  <MyService.Provider
-    request="/foo/bar"
-    fallback={<>Loading data...</>}
-  >
-    <MyComponent />
-  </MyService.Provider>
-);
 ```
+
+[![Edit suspense-service-expensive-computation](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/suspense-service-expensive-computation-qmwi9)
+
+</details>
+
+<details>
+<summary>Other problems</summary>
+
+[Concurrent Mode] introduces some UI patterns that are difficult to achieve with the existing approach. These patterns include [Transitions] and [Deferring a value].
+</details>
 
 ## Installing
 
@@ -104,17 +137,11 @@ npm i suspense-service
 yarn add suspense-service
 ```
 
-## Documentation
-
-API Reference available on [GitHub Pages]
-
-## Code Coverage
-
-Available on [Codecov](https://codecov.io/gh/patrickroberts/suspense-service)
-
 ## Usage
 
-<details open>
+### `Service`
+
+<details>
 <summary>Basic Example</summary>
 
 ```jsx
@@ -126,8 +153,8 @@ import { createService, useService } from 'suspense-service';
  * It may accept a parameter of any type
  * but it must return a promise or thenable
  */
-const myHandler = async (endpoint) => {
-  const response = await fetch(`/api/v1${endpoint}`);
+const myHandler = async (request) => {
+  const response = await fetch(request);
   return response.json();
 };
 
@@ -138,46 +165,45 @@ const myHandler = async (endpoint) => {
 const MyService = createService(myHandler);
 
 const MyComponent = () => {
-  // Consume MyService synchronously or suspend
+  // Consumes MyService synchronously by suspending
   // MyComponent until the response is available
   const data = useService(MyService);
 
-  return (
-    <pre>
-      {JSON.stringify(data, null, 2)}
-    </pre>
-  );
+  return <pre>{JSON.stringify(data, null, 2)}</pre>;
 };
 
 const App = () => (
-  // Fetch /api/v1/foo/bar
-  <MyService.Provider request="/foo/bar">
+  // Fetch https://swapi.dev/api/people/1/
+  <MyService.Provider request="https://swapi.dev/api/people/1/">
     {/* Render fallback while MyComponent is suspended */}
-    <Suspense fallback={<>Loading data...</>}>
+    <Suspense fallback="Loading data...">
       <MyComponent />
     </Suspense>
   </MyService.Provider>
 );
 ```
+
+[![Edit suspense-service-basic-example](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/suspense-service-basic-example-oidy0)
+
 </details>
 
-<details open>
+<details>
 <summary>Render Callback</summary>
 
 ```jsx
-const render = data => (
-  <pre>
-    {JSON.stringify(data, null, 2)}
-  </pre>
-);
-
 const MyComponent = () => (
-  <MyService.Consumer>{render}</MyService.Consumer>
+  // Subscribe to MyService using a callback function
+  <MyService.Consumer>
+    {(data) => <pre>{JSON.stringify(data, null, 2)}</pre>}
+  </MyService.Consumer>
 );
 ```
+
+[![Edit suspense-service-render-callback](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/suspense-service-render-callback-sf2tw)
+
 </details>
 
-<details open>
+<details>
 <summary>Inline Suspense</summary>
 
 ```jsx
@@ -185,52 +211,165 @@ const App = () => (
   // Passing the optional fallback prop
   // wraps a Suspense around the children
   <MyService.Provider
-    request="/foo/bar"
-    fallback={<>Loading data...</>}
+    request="https://swapi.dev/api/people/1/"
+    fallback="Loading data..."
   >
     <MyComponent />
   </MyService.Provider>
 );
 ```
+
+[![Edit suspense-service-inline-suspense](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/suspense-service-inline-suspense-tf37k)
+
 </details>
 
-<details open>
+<details>
 <summary>Multiple Providers</summary>
 
 ```jsx
 const MyComponent = () => {
   // Specify which Provider to use
   // by passing the optional id parameter
-  // Omitting the id or passing null will consume
-  // the closest ancestor Provider by default
   const a = useService(MyService, 'a');
   const b = useService(MyService, 'b');
 
-  return (
-    <pre>
-      {JSON.stringify({ a, b }, null, 2)}
-    </pre>
-  );
+  return <pre>{JSON.stringify({ a, b }, null, 2)}</pre>;
 };
 
 const App = () => (
   // Identify each Provider with a key
   // by using the optional id prop
-  <MyService.Provider request="/a" id="a">
-    <MyService.Provider request="/b" id="b">
-      <Suspense fallback={<>Loading data...</>}>
+  <MyService.Provider request="people/1/" id="a">
+    <MyService.Provider request="people/2/" id="b">
+      <Suspense fallback="Loading data...">
         <MyComponent />
       </Suspense>
     </MyService.Provider>
   </MyService.Provider>
 );
 ```
+
+[![Edit suspense-service-multiple-providers](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/suspense-service-multiple-providers-0o60m)
+
 </details>
+
+<details>
+<summary>Multiple Consumers</summary>
+
+```jsx
+const MyComponent = () => (
+  // Specify which Provider to use
+  // by passing the optional id parameter
+  <MyService.Consumer id="a">
+    {(a) => (
+      <MyService.Consumer id="b">
+        {(b) => <pre>{JSON.stringify({ a, b }, null, 2)}</pre>}
+      </MyService.Consumer>
+    )}
+  </MyService.Consumer>
+);
+```
+
+[![Edit suspense-service-multiple-consumers](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/suspense-service-multiple-consumers-09ksg)
+
+</details>
+
+<details>
+<summary>Pagination</summary>
+
+```jsx
+const MyComponent = () => {
+  // Allows MyComponent to update MyService.Provider request
+  const [response, setRequest] = useServiceState(MyService);
+  const { previous, next, results } = response;
+  const setPage = (page) => setRequest(page.replace(/^http:/, 'https:'));
+
+  return (
+    <>
+      <button disabled={!previous} onClick={() => setPage(previous)}>
+        Previous
+      </button>
+      <button disabled={!next} onClick={() => setPage(next)}>
+        Next
+      </button>
+      <ul>
+        {results.map((result) => (
+          <li key={result.url}>
+            <a href={result.url} target="_blank" rel="noreferrer">
+              {result.name}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </>
+  );
+};
+```
+
+[![Edit suspense-service-pagination](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/suspense-service-pagination-v9so8)
+
+</details>
+
+<details>
+<summary>Transitions</summary>
+
+> Note that [Concurrent Mode] is required in order to enable [Transitions].
+
+```jsx
+const MyComponent = () => {
+  // Allows MyComponent to update MyService.Provider request
+  const [response, setRequest] = useServiceState(MyService);
+  // Renders current response while next response is suspended
+  const [startTransition, isPending] = unstable_useTransition();
+  const { previous: prev, next, results } = response;
+  const setPage = (page) => {
+    startTransition(() => {
+      setRequest(page.replace(/^http:/, 'https:'));
+    });
+  };
+
+  return (
+    <>
+      <button disabled={!prev || isPending} onClick={() => setPage(prev)}>
+        Previous
+      </button>{' '}
+      <button disabled={!next || isPending} onClick={() => setPage(next)}>
+        Next
+      </button>
+      <ul>
+        {results.map((result) => (
+          <li key={result.url}>
+            <a href={result.url} target="_blank" rel="noreferrer">
+              {result.name}
+            </a>
+          </li>
+        ))}
+      </ul>
+      {isPending && 'Loading next page...'}
+    </>
+  );
+};
+```
+
+[![Edit suspense-service-transitions](https://codesandbox.io/static/img/play-codesandbox.svg)](https://codesandbox.io/s/suspense-service-transitions-9h8tv)
+
+</details>
+
+## Documentation
+
+API Reference available on [GitHub Pages]
+
+## Code Coverage
+
+Available on [Codecov](https://codecov.io/gh/patrickroberts/suspense-service)
 
 [Suspense]: https://reactjs.org/docs/concurrent-mode-suspense.html#what-is-suspense-exactly
 [React]: https://reactjs.org
 [Context]: https://reactjs.org/docs/context.html
 [Rules of Hooks]: https://reactjs.org/docs/hooks-rules.html
+[Concurrent Mode]: https://reactjs.org/docs/concurrent-mode-reference.html
+[Transitions]: https://reactjs.org/docs/concurrent-mode-patterns.html#transitions
+[Deferring a value]: https://reactjs.org/docs/concurrent-mode-patterns.html#deferring-a-value
 [npm]: https://www.npmjs.com/package/suspense-service
 [Yarn]: https://yarnpkg.com/package/suspense-service
 [GitHub Pages]: https://patrickroberts.github.io/suspense-service

@@ -51,11 +51,11 @@ export function createService<TRequest, TResponse>(
  * @param id the {@link ServiceProviderProps.id | ServiceProvider id} to use
  */
 export function useServiceState<TRequest, TResponse>(
-  service: Service<TRequest, TResponse>, id: Id = null,
+  service: Service<TRequest, TResponse>, id?: Id,
 ): [TResponse, Dispatch<SetStateAction<TRequest>>] {
-  const resourceAndSetState = useIdContext(service[kResource], id);
+  const { 0: resource, 1: setState } = useIdContext(service[kResource], id);
 
-  return [resourceAndSetState[0](), resourceAndSetState[1]];
+  return [resource(), setState];
 }
 
 /**
@@ -63,6 +63,8 @@ export function useServiceState<TRequest, TResponse>(
  * @param service the {@link Service} to use
  * @param id the {@link ServiceProviderProps.id | ServiceProvider id} to use
  */
-export function useService<TResponse>(service: Service<any, TResponse>, id: Id = null): TResponse {
-  return useServiceState(service, id)[0];
+export function useService<TResponse>(service: Service<any, TResponse>, id?: Id): TResponse {
+  const { 0: response } = useServiceState(service, id);
+
+  return response;
 }

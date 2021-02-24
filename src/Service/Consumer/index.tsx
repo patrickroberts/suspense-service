@@ -27,8 +27,5 @@ export function createServiceConsumer<TRequest, TResponse>(
 
   ResourceConsumer.defaultProps = defaultProps;
 
-  return memo(ResourceConsumer, (prev, next) => (
-    Object.is(prev.id, next.id)
-    && Object.is(prev.children, next.children)
-  ));
+  return memo(ResourceConsumer);
 }

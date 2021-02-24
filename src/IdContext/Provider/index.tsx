@@ -15,7 +15,7 @@ export function createIdContextProvider<T>(
   const EnvironmentProvider: IdContextProvider<T> = ({ value, id, children }) => {
     const prev = useContext(EnvironmentContext);
     const next = useMemo(
-      () => wrap(prev, value, id),
+      () => wrap(prev, value, id!),
       [value, id, prev],
     );
 
@@ -27,9 +27,5 @@ export function createIdContextProvider<T>(
 
   EnvironmentProvider.defaultProps = defaultProps;
 
-  return memo(EnvironmentProvider, (prev, next) => (
-    Object.is(prev.value, next.value)
-    && Object.is(prev.id, next.id)
-    && Object.is(prev.children, next.children)
-  ));
+  return memo(EnvironmentProvider);
 }
