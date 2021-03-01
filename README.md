@@ -11,7 +11,7 @@
 [Suspense] integration library for [React]
 
 ```jsx
-import React, { Suspense } from 'react';
+import { Suspense } from 'react';
 import { createService, useService } from 'suspense-service';
 
 const myHandler = async (request) => {
@@ -47,7 +47,7 @@ const App = () => (
 This library aims to provide a generic integration between promise-based data fetching and React's Suspense API, eliminating much of the boilerplate associated with state management of asynchronous data. _Without Suspense, [data fetching often looks like this](https://reactjs.org/docs/concurrent-mode-suspense.html#approach-1-fetch-on-render-not-using-suspense)_:
 
 ```jsx
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 
 const MyComponent = ({ request }) => {
   const [data, setData] = useState();
@@ -79,14 +79,14 @@ const App = () => (
 );
 ```
 
-This may work well for trivial cases, but the amount of effort (and boilerplate) required tends to increase significantly for anything more advanced. Here are a few problems this approach fails to address well.
+This may work well for trivial cases, but the amount of effort and code required tends to increase significantly for anything more advanced. Here are a few difficulities with this approach that `suspense-service` is intended to simplify.
 
 <details>
 <summary>Avoiding race conditions caused by out-of-order responses</summary>
 
-Accomplishing this with the approach above would require additional logic to index each of the requests and compose a promise chain to ensure responses from older requests can't overwrite the state when one from a more recent request is already available.
+Accomplishing this with the approach above would require additional logic to index each of the requests and compose a promise chain to ensure responses from older requests don't overwrite the current state when one from a more recent request is already available.
 
-[Concurrent Mode was designed to solve this type of race condition using Suspense](https://reactjs.org/docs/concurrent-mode-suspense.html#suspense-and-race-conditions).
+[Concurrent Mode was designed to inherently solve this type of race condition using Suspense](https://reactjs.org/docs/concurrent-mode-suspense.html#suspense-and-race-conditions).
 </details>
 
 <details>
@@ -94,15 +94,15 @@ Accomplishing this with the approach above would require additional logic to ind
 
 This would typically be done by passing the response down through props, or by creating a [Context] to provide the response. Both of these solutions would require a lot of effort, especially if you want to avoid re-rendering the intermediate components that aren't even using the response.
 
-`suspense-service` already creates an optimized context provider for you which allows the response to be consumed from as many nested components as you want without making multiple requests.
+`suspense-service` already creates an optimized context provider that allows the response to be consumed from multiple nested components without making multiple requests.
 </details>
 
 <details>
 <summary>Memoizing expensive computations based on the response</summary>
 
-Expanding on the approach above, you would need to create a nested component in order to memoize any expensive computations, and pass the response to it as a prop. Otherwise you'd need to be careful and write any `useMemo()` before `if (loading) return (...);` in order to follow the [Rules of Hooks]. This means that the expensive computation would first need to check if the `data` is ready each time and provide a default value if not.
+Expanding on the approach above, care would be needed in order to write a `useMemo()` that follows the [Rules of Hooks], and the expensive computation would need to be made conditional on the availability of `data` since it wouldn't be populated until a later re-render.
 
-With `suspense-service`, you can simply pass `data` from `useService()` to `useMemo()`, and perform the computation unconditionally, because the response is available synchronously:
+With `suspense-service`, you can simply pass `data` from `useService()` to `useMemo()`, and perform the computation unconditionally, because the component is suspended until the response is made available synchronously:
 
 ```jsx
 const MyComponent = () => {
@@ -123,9 +123,9 @@ const MyComponent = () => {
 </details>
 
 <details>
-<summary>Other problems</summary>
+<summary>Other solved problems</summary>
 
-[Concurrent Mode] introduces some UI patterns that are difficult to achieve with the existing approach. These patterns include [Transitions] and [Deferring a value].
+[Concurrent Mode] introduces some UI patterns that were difficult to achieve with the existing approach. These patterns include [Transitions] and [Deferring a value].
 </details>
 
 ## Installing
@@ -145,7 +145,7 @@ yarn add suspense-service
 <summary>Basic Example</summary>
 
 ```jsx
-import React, { Suspense } from 'react';
+import { Suspense } from 'react';
 import { createService, useService } from 'suspense-service';
 
 /**
@@ -281,12 +281,12 @@ const MyComponent = () => (
 const MyComponent = () => {
   // Allows MyComponent to update MyService.Provider request
   const [response, setRequest] = useServiceState(MyService);
-  const { previous, next, results } = response;
+  const { previous: prev, next, results } = response;
   const setPage = (page) => setRequest(page.replace(/^http:/, 'https:'));
 
   return (
     <>
-      <button disabled={!previous} onClick={() => setPage(previous)}>
+      <button disabled={!prev} onClick={() => setPage(prev)}>
         Previous
       </button>
       <button disabled={!next} onClick={() => setPage(next)}>
@@ -336,6 +336,7 @@ const MyComponent = () => {
       <button disabled={!next || isPending} onClick={() => setPage(next)}>
         Next
       </button>
+      {isPending && 'Loading next page...'}
       <ul>
         {results.map((result) => (
           <li key={result.url}>
@@ -345,7 +346,6 @@ const MyComponent = () => {
           </li>
         ))}
       </ul>
-      {isPending && 'Loading next page...'}
     </>
   );
 };
