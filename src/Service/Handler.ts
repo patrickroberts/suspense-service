@@ -1,6 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useState } from 'react';
 import Id from '../IdContext/Id';
-import Mutable, { MutableProperty } from './Mutable';
+import HandlerState, { HandlerStateProperty } from './HandlerState';
 import PromiseState, { PromiseStateProperty, StatusType } from './PromiseState';
 
 /**
@@ -15,25 +15,9 @@ export function createUseHandler<TRequest, TResponse>(
   handler: Handler<TRequest, TResponse>,
 ) {
   return function useHandler(request: TRequest, id: Id): () => TResponse {
-    const ref = useRef<Mutable<TRequest, TResponse>>();
-    let mutable = ref.current;
-
-    if (
-      !mutable
-      || !Object.is(request, mutable[MutableProperty.CurrentRequest])
-      || !Object.is(id, mutable[MutableProperty.CurrentId])
-    ) {
+    const factory = (): HandlerState<TRequest, TResponse> => {
       let state: PromiseState<TResponse> = [
-        StatusType.Pending,
-        new Promise<TResponse>((resolve) => {
-          mutable = [request, id, resolve, () => {
-            if (state[PromiseStateProperty.Status] !== StatusType.Fulfilled) {
-              throw state[PromiseStateProperty.Result];
-            }
-
-            return state[PromiseStateProperty.Result];
-          }];
-        }).then(
+        StatusType.Pending, Promise.resolve(handler(request, id)).then(
           (value) => {
             state = [StatusType.Fulfilled, value];
             return value;
@@ -45,18 +29,25 @@ export function createUseHandler<TRequest, TResponse>(
         ),
       ];
 
-      ref.current = mutable;
+      return [request, id, () => {
+        if (state[PromiseStateProperty.Status] !== StatusType.Fulfilled) {
+          throw state[PromiseStateProperty.Result];
+        }
+
+        return state[PromiseStateProperty.Result];
+      }];
+    };
+    const { 0: state, 1: setState } = useState<HandlerState<TRequest, TResponse>>(factory);
+    let next = state;
+
+    if (
+      !Object.is(request, state[HandlerStateProperty.CurrentRequest])
+      || !Object.is(id, state[HandlerStateProperty.CurrentId])
+    ) {
+      next = factory();
+      setState(next);
     }
 
-    useEffect(() => {
-      const promise = handler(
-        mutable![MutableProperty.CurrentRequest],
-        mutable![MutableProperty.CurrentId],
-      );
-
-      mutable![MutableProperty.Resolve](promise);
-    }, [mutable]);
-
-    return mutable![MutableProperty.Resource];
+    return next[HandlerStateProperty.Resource];
   };
 }
