@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef } from 'react';
 import Id from '../IdContext/Id';
 import HandlerState, { HandlerStateProperty } from './HandlerState';
 import PromiseState, { PromiseStateProperty, StatusType } from './PromiseState';
@@ -15,39 +15,37 @@ export function createUseHandler<TRequest, TResponse>(
   handler: Handler<TRequest, TResponse>,
 ) {
   return function useHandler(request: TRequest, id: Id): () => TResponse {
-    const factory = (): HandlerState<TRequest, TResponse> => {
-      let state: PromiseState<TResponse> = [
+    const ref = useRef<HandlerState<TRequest, TResponse>>();
+    let handlerState = ref.current;
+
+    if (
+      !handlerState
+      || !Object.is(request, handlerState[HandlerStateProperty.CurrentRequest])
+      || !Object.is(id, handlerState[HandlerStateProperty.CurrentId])
+    ) {
+      let promiseState: PromiseState<TResponse> = [
         StatusType.Pending, Promise.resolve(handler(request, id)).then(
           (value) => {
-            state = [StatusType.Fulfilled, value];
+            promiseState = [StatusType.Fulfilled, value];
             return value;
           },
           (reason) => {
-            state = [StatusType.Rejected, reason];
+            promiseState = [StatusType.Rejected, reason];
             throw reason;
           },
         ),
       ];
 
-      return [request, id, () => {
-        if (state[PromiseStateProperty.Status] !== StatusType.Fulfilled) {
-          throw state[PromiseStateProperty.Result];
+      handlerState = [request, id, () => {
+        if (promiseState[PromiseStateProperty.Status] !== StatusType.Fulfilled) {
+          throw promiseState[PromiseStateProperty.Result];
         }
 
-        return state[PromiseStateProperty.Result];
+        return promiseState[PromiseStateProperty.Result];
       }];
-    };
-    const { 0: state, 1: setState } = useState<HandlerState<TRequest, TResponse>>(factory);
-    let next = state;
-
-    if (
-      !Object.is(request, state[HandlerStateProperty.CurrentRequest])
-      || !Object.is(id, state[HandlerStateProperty.CurrentId])
-    ) {
-      next = factory();
-      setState(next);
+      ref.current = handlerState;
     }
 
-    return next[HandlerStateProperty.Resource];
+    return handlerState[HandlerStateProperty.Resource];
   };
 }
