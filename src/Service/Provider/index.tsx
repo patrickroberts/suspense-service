@@ -2,7 +2,6 @@ import React, { ComponentType, Dispatch, SetStateAction, Suspense, memo, useMemo
 import Id from '../../IdContext/Id';
 import IdContext from '../../IdContext';
 import useResetState from '../../State/useResetState';
-import Resource from '../Resource';
 import ServiceProviderProps, { defaultProps } from './Props';
 
 type ServiceProvider<TRequest> = ComponentType<ServiceProviderProps<TRequest>>;
@@ -12,8 +11,8 @@ export { ServiceProviderProps };
 
 /** @ignore */
 export function createServiceProvider<TRequest, TResponse>(
-  { Provider }: IdContext<[Resource<TResponse>, Dispatch<SetStateAction<TRequest>>]>,
-  useHandler: (request: TRequest, id: Id) => Resource<TResponse>,
+  { Provider }: IdContext<[() => TResponse, Dispatch<SetStateAction<TRequest>>]>,
+  useHandler: (request: TRequest, id: Id) => () => TResponse,
 ): ServiceProvider<TRequest> {
   const ResourceProvider: ServiceProvider<TRequest> = ({
     request, id, children, fallback, reset,

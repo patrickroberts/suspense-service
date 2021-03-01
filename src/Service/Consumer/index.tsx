@@ -1,6 +1,5 @@
 import React, { ComponentType, Dispatch, SetStateAction, memo, useCallback, useMemo } from 'react';
 import IdContext from '../../IdContext';
-import Resource from '../Resource';
 import ServiceConsumerProps, { defaultProps } from './Props';
 
 type ServiceConsumer<TRequest, TResponse> =
@@ -11,11 +10,11 @@ export { ServiceConsumerProps };
 
 /** @ignore */
 export function createServiceConsumer<TRequest, TResponse>(
-  { Consumer }: IdContext<[Resource<TResponse>, Dispatch<SetStateAction<TRequest>>]>,
+  { Consumer }: IdContext<[() => TResponse, Dispatch<SetStateAction<TRequest>>]>,
 ): ServiceConsumer<TRequest, TResponse> {
   const ResourceConsumer: ServiceConsumer<TRequest, TResponse> = ({ id, children }) => {
     const render = useCallback((
-      resourceAndSetState: [Resource<TResponse>, Dispatch<SetStateAction<TRequest>>],
+      resourceAndSetState: [() => TResponse, Dispatch<SetStateAction<TRequest>>],
     ) => children(resourceAndSetState[0](), resourceAndSetState[1]),
     [children]);
 

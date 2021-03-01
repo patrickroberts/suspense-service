@@ -1,7 +1,7 @@
+import { useEffect, useRef } from 'react';
 import Id from '../IdContext/Id';
-import useSync from '../State/useSync';
+import Mutable, { MutableProperty } from './Mutable';
 import PromiseState, { PromiseStateProperty, StatusType } from './PromiseState';
-import Resource from './Resource';
 
 /**
  * The type of asynchronous function for fetching data
@@ -14,28 +14,49 @@ export default Handler;
 export function createUseHandler<TRequest, TResponse>(
   handler: Handler<TRequest, TResponse>,
 ) {
-  return function useHandler(request: TRequest, id: Id): Resource<TResponse> {
-    return useSync(() => {
-      let state: PromiseState<TResponse>;
-      const promise = Promise.resolve(handler(request, id)).then(
-        (value) => {
-          state = [StatusType.Fulfilled, value];
-          return value;
-        },
-        (reason) => {
-          state = [StatusType.Rejected, reason];
-          throw reason;
-        },
+  return function useHandler(request: TRequest, id: Id): () => TResponse {
+    const ref = useRef<Mutable<TRequest, TResponse>>();
+    let mutable = ref.current;
+
+    if (
+      !mutable
+      || !Object.is(request, mutable[MutableProperty.CurrentRequest])
+      || !Object.is(id, mutable[MutableProperty.CurrentId])
+    ) {
+      let state: PromiseState<TResponse> = [
+        StatusType.Pending,
+        new Promise<TResponse>((resolve) => {
+          mutable = [request, id, resolve, () => {
+            if (state[PromiseStateProperty.Status] !== StatusType.Fulfilled) {
+              throw state[PromiseStateProperty.Result];
+            }
+
+            return state[PromiseStateProperty.Result];
+          }];
+        }).then(
+          (value) => {
+            state = [StatusType.Fulfilled, value];
+            return value;
+          },
+          (reason) => {
+            state = [StatusType.Rejected, reason];
+            throw reason;
+          },
+        ),
+      ];
+
+      ref.current = mutable;
+    }
+
+    useEffect(() => {
+      const promise = handler(
+        mutable![MutableProperty.CurrentRequest],
+        mutable![MutableProperty.CurrentId],
       );
 
-      state = [StatusType.Pending, promise];
-      return () => {
-        if (state[PromiseStateProperty.Status] !== StatusType.Fulfilled) {
-          throw state[PromiseStateProperty.Result];
-        }
+      mutable![MutableProperty.Resolve](promise);
+    }, [mutable]);
 
-        return state[PromiseStateProperty.Result];
-      };
-    }, [request, id]);
+    return mutable![MutableProperty.Resource];
   };
 }

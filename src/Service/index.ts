@@ -2,7 +2,6 @@ import { Dispatch, SetStateAction } from 'react';
 import Id from '../IdContext/Id';
 import IdContext, { createIdContext, useIdContext } from '../IdContext';
 import Handler, { createUseHandler } from './Handler';
-import Resource from './Resource';
 import ServiceConsumer, { createServiceConsumer } from './Consumer';
 import ServiceProvider, { createServiceProvider } from './Provider';
 
@@ -19,13 +18,13 @@ export default interface Service<TRequest, TResponse> {
   Consumer: ServiceConsumer<TRequest, TResponse>;
   Provider: ServiceProvider<TRequest>;
   /** @internal */
-  [kResource]: IdContext<[Resource<TResponse>, Dispatch<SetStateAction<TRequest>>]>;
+  [kResource]: IdContext<[() => TResponse, Dispatch<SetStateAction<TRequest>>]>;
 }
 
 export { Handler };
 
 const defaultFn = () => { throw new Error('Provider is not in scope'); };
-const defaultValue: [Resource<never>, Dispatch<any>] = [defaultFn, defaultFn];
+const defaultValue: [() => never, Dispatch<any>] = [defaultFn, defaultFn];
 
 /**
  * Creates a Service Context for providing asynchronous data
@@ -35,7 +34,7 @@ export function createService<TRequest, TResponse>(
   handler: Handler<TRequest, TResponse>,
 ): Service<TRequest, TResponse> {
   const ResourceContext = createIdContext<[
-    Resource<TResponse>, Dispatch<SetStateAction<TRequest>>,
+    () => TResponse, Dispatch<SetStateAction<TRequest>>,
   ]>(defaultValue);
 
   return {

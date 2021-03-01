@@ -31,6 +31,11 @@
       "error",
       "interface"
     ],
+    "@typescript-eslint/func-call-spacing": "error",
+    "@typescript-eslint/indent": [
+      "error",
+      2
+    ],
     "@typescript-eslint/lines-between-class-members": "error",
     "@typescript-eslint/member-delimiter-style": "error",
     "@typescript-eslint/no-dupe-class-members": "error",
@@ -49,6 +54,7 @@
         "asyncArrow": "always"
       }
     ],
+    "func-call-spacing": "off",
     "function-paren-newline": [
       "error",
       "consistent"
@@ -70,6 +76,7 @@
         ]
       }
     ],
+    "indent": "off",
     "lines-between-class-members": "off",
     "no-bitwise": "off",
     "no-dupe-class-members": "off",
@@ -87,6 +94,7 @@
     ],
     "no-redeclare": "off",
     "no-shadow": "off",
+    "no-spaced-func": "off",
     "no-unused-vars": "off",
     "no-use-before-define": "off",
     "object-curly-newline": [
