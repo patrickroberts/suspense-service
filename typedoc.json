@@ -1,7 +1,8 @@
 {
   "allReflectionsHaveOwnDocument": true,
   "disableOutputCheck": true,
-  "hideProjectName": true,
+  "name": "suspense-service",
   "out": "docs",
+  "preserveWatchOutput": true,
   "sourcefile-url-prefix": "https://github.com/patrickroberts/suspense-service/blob/master/src/"
 }

@@ -16,9 +16,10 @@
     "test": "jest --coverage",
     "build": "rollup --config --environment NODE_ENV:production",
     "rebuild": "npm run clean:build && npm run build",
-    "docs": "npm run clean:docs && typedoc src/index.ts",
+    "docs": "typedoc src/index.ts",
     "watch:build": "npm run build -- --environment NODE_ENV:development --watch",
     "watch:test": "npm test -- --watch",
+    "watch:docs": "npm run docs -- --watch",
     "watch": "concurrently 'npm:watch:*'",
     "prepublishOnly": "npm run clean && npm run lint && npm test && npm run build && npm run docs"
   },
@@ -53,7 +54,7 @@
     "rollup-plugin-terser": "^7.0.2",
     "ts-jest": "^26.4.4",
     "typedoc": "^0.20.14",
-    "typedoc-plugin-markdown": "^3.4.0",
+    "typedoc-plugin-markdown": "^3.6.1",
     "typedoc-plugin-sourcefile-url": "^1.0.6",
     "typescript": "^4.1.3"
   },
